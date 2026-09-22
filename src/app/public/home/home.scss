@@ -1,0 +1,63 @@
+.home {
+  background: #121212;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #f2f2f2;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+
+  h1 {
+    color: #d4af37;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: #d4af37;
+  }
+
+  img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    display: block;
+  }
+
+  .info {
+    padding: 0.9rem;
+
+    h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1.05rem;
+    }
+
+    .meta {
+      color: #b3b3b3;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sinopsis {
+      font-size: 0.85rem;
+      color: #cfcfcf;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+}
