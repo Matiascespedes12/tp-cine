@@ -61,3 +61,58 @@
     }
   }
 }
+
+.filtros {
+  margin-bottom: 2rem;
+
+  input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.7rem 1rem;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #f2f2f2;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: #d4af37;
+    }
+  }
+
+  .generos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    button {
+      background: transparent;
+      border: 1px solid #444;
+      color: #cfcfcf;
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        border-color: #d4af37;
+      }
+
+      &.activo {
+        background: #d4af37;
+        border-color: #d4af37;
+        color: #121212;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.generos-tags {
+  font-size: 0.75rem;
+  color: #d4af37;
+  margin-bottom: 0.4rem;
+}

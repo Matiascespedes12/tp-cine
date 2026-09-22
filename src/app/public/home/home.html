@@ -1,14 +1,35 @@
 <div class="home">
   <h1>Cartelera</h1>
 
+  <div class="filtros" *ngIf="!cargando">
+    <input
+      type="text"
+      placeholder="Buscar película..."
+      [(ngModel)]="busqueda"
+      (input)="filtrar()"
+    >
+
+    <div class="generos">
+      <button
+        *ngFor="let genero of generosDisponibles"
+        [class.activo]="generosSeleccionados.includes(genero.nombre)"
+        (click)="toggleGenero(genero.nombre)"
+      >
+        {{ genero.nombre }}
+      </button>
+    </div>
+  </div>
+
   <p *ngIf="cargando">Cargando películas...</p>
+  <p *ngIf="!cargando && peliculasFiltradas.length === 0">No se encontraron películas.</p>
 
   <div class="grilla" *ngIf="!cargando">
-    <div class="card" *ngFor="let pelicula of peliculas">
+    <div class="card" *ngFor="let pelicula of peliculasFiltradas">
       <img [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
       <div class="info">
         <h3>{{ pelicula.nombre }}</h3>
         <p class="meta">{{ pelicula.duracion_min }} min · {{ pelicula.formato }} · {{ pelicula.idioma }}</p>
+        <p class="generos-tags">{{ pelicula.generos.join(', ') }}</p>
         <p class="sinopsis">{{ pelicula.sinopsis }}</p>
       </div>
     </div>

@@ -11,6 +11,8 @@ export interface Pelicula {
   idioma: string;
   restriccion_edad: number | null;
   fecha_estreno: string;
+  generos: string[];
+  ventas?: number;
 }
 
 @Injectable({
@@ -22,7 +24,12 @@ export class Peliculas {
   async obtenerCartelera(): Promise<Pelicula[]> {
     const { data, error } = await this.supabase.client
       .from('peliculas')
-      .select('*')
+      .select(`
+        *,
+        pelicula_genero (
+          generos ( nombre )
+        )
+      `)
       .order('fecha_estreno', { ascending: false });
 
     if (error) {
@@ -30,6 +37,23 @@ export class Peliculas {
       return [];
     }
 
-    return data as Pelicula[];
+    return data.map((p: any) => ({
+      ...p,
+      generos: p.pelicula_genero.map((pg: any) => pg.generos.nombre)
+    }));
+  }
+
+  async obtenerGeneros(): Promise<{ id: string; nombre: string }[]> {
+    const { data, error } = await this.supabase.client
+      .from('generos')
+      .select('*')
+      .order('nombre');
+
+    if (error) {
+      console.error('Error al obtener géneros:', error);
+      return [];
+    }
+
+    return data;
   }
 }
