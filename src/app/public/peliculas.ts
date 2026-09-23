@@ -56,4 +56,43 @@ export class Peliculas {
 
     return data;
   }
+
+  async obtenerPorId(id: string): Promise<Pelicula | null> {
+    const { data, error } = await this.supabase.client
+      .from('peliculas')
+      .select(`
+        *,
+        pelicula_genero (
+          generos ( nombre )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error al obtener la película:', error);
+      return null;
+    }
+
+    return {
+      ...data,
+      generos: data.pelicula_genero.map((pg: any) => pg.generos.nombre)
+    };
+  }
+
+  async obtenerFunciones(peliculaId: string) {
+    const { data, error } = await this.supabase.client
+      .from('funciones')
+      .select('*, salas(nombre)')
+      .eq('pelicula_id', peliculaId)
+      .gte('fecha_hora_inicio', new Date().toISOString())
+      .order('fecha_hora_inicio');
+
+    if (error) {
+      console.error('Error al obtener funciones:', error);
+      return [];
+    }
+
+    return data;
+  }
 }

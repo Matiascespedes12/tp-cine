@@ -24,7 +24,7 @@
   <p *ngIf="!cargando && peliculasFiltradas.length === 0">No se encontraron películas.</p>
 
   <div class="grilla" *ngIf="!cargando">
-    <div class="card" *ngFor="let pelicula of peliculasFiltradas">
+    <div class="card" *ngFor="let pelicula of peliculasFiltradas" [routerLink]="['/pelicula', pelicula.id]">
       <img [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
       <div class="info">
         <h3>{{ pelicula.nombre }}</h3>

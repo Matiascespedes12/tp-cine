@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Peliculas, Pelicula } from '../peliculas';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -17,13 +18,17 @@ export class Home implements OnInit {
   busqueda = '';
   cargando = true;
 
-  constructor(private peliculasService: Peliculas) {}
+  constructor(
+    private peliculasService: Peliculas,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   async ngOnInit() {
     this.peliculas = await this.peliculasService.obtenerCartelera();
     this.generosDisponibles = await this.peliculasService.obtenerGeneros();
     this.peliculasFiltradas = this.peliculas;
     this.cargando = false;
+    this.cdr.detectChanges();
   }
 
   toggleGenero(nombre: string) {
@@ -33,6 +38,7 @@ export class Home implements OnInit {
       this.generosSeleccionados = [...this.generosSeleccionados, nombre];
     }
     this.filtrar();
+    this.cdr.detectChanges();
   }
 
   filtrar() {
@@ -43,5 +49,6 @@ export class Home implements OnInit {
         p.generos.some(g => this.generosSeleccionados.includes(g));
       return coincideTexto && coincideGenero;
     });
+    this.cdr.detectChanges();
   }
 }
