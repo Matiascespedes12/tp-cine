@@ -1,1 +1,43 @@
-<p>seleccion-butacas works!</p>
+<div class="butacas-page" *ngIf="!cargando && funcion">
+  <a routerLink="/" class="volver">← Volver a cartelera</a>
+
+  <h1>{{ funcion.peliculas.nombre }}</h1>
+  <p class="subtitulo">{{ funcion.salas.nombre }}</p>
+
+  <div class="pantalla">PANTALLA</div>
+
+  <div class="mapa">
+    <div class="fila" *ngFor="let fila of filas">
+      <span class="letra-fila">{{ fila }}</span>
+      <div class="butacas-de-fila">
+        <button
+          *ngFor="let butaca of butacasPorFila[fila]"
+          class="butaca"
+          [class.ocupada]="butaca.ocupada"
+          [class.seleccionada]="butaca.seleccionada"
+          [class.accesible]="butaca.tipo === 'accesible'"
+          [class.vip]="butaca.tipo === 'vip'"
+          [disabled]="butaca.ocupada"
+          (click)="toggleButaca(butaca)"
+        >
+          {{ butaca.numero }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="referencias">
+    <span><span class="muestra libre"></span> Libre</span>
+    <span><span class="muestra ocupada"></span> Ocupada</span>
+    <span><span class="muestra seleccionada"></span> Seleccionada</span>
+    <span><span class="muestra accesible"></span> Accesible</span>
+    <span><span class="muestra vip"></span> VIP</span>
+  </div>
+
+  <div class="resumen" *ngIf="totalSeleccionadas > 0">
+    <p>{{ totalSeleccionadas }} butaca(s) seleccionada(s)</p>
+    <button class="continuar">Continuar a la compra</button>
+  </div>
+</div>
+
+<p *ngIf="cargando">Cargando mapa de butacas...</p>

@@ -23,7 +23,7 @@
     <h2>Funciones disponibles</h2>
     <p *ngIf="funciones.length === 0">No hay funciones programadas por el momento.</p>
     <div class="lista-funciones" *ngIf="funciones.length > 0">
-      <button class="funcion" *ngFor="let funcion of funciones">
+      <button class="funcion" *ngFor="let funcion of funciones" [routerLink]="['/funcion', funcion.id, 'butacas']">
         <span class="sala">{{ funcion.salas.nombre }}</span>
         <span class="fecha">{{ formatearFecha(funcion.fecha_hora_inicio) }}</span>
       </button>
@@ -38,3 +38,10 @@
         <strong>{{ resena.usuarios?.nombre || 'Usuario' }}</strong>
         <span class="estrellas">{{ '⭐'.repeat(resena.calificacion) }}</span>
       </div>
+      <p>{{ resena.comentario }}</p>
+    </div>
+  </section>
+</div>
+
+<p *ngIf="cargando">Cargando...</p>
+<p *ngIf="!cargando && !pelicula">Película no encontrada.</p>
