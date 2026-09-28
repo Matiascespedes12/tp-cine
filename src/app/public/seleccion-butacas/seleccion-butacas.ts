@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Butacas, Butaca, Funcion } from '../butacas';
 
 interface ButacaConEstado extends Butaca {
@@ -23,6 +23,7 @@ export class SeleccionButacas implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private butacasService: Butacas,
     private cdr: ChangeDetectorRef
   ) {}
@@ -74,5 +75,14 @@ export class SeleccionButacas implements OnInit {
 
   get totalSeleccionadas(): number {
     return this.butacasSeleccionadas.length;
+  }
+
+  irACheckout() {
+    this.router.navigate(['/checkout'], {
+      state: {
+        funcionId: this.funcion?.id,
+        butacas: this.butacasSeleccionadas
+      }
+    });
   }
 }

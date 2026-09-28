@@ -36,7 +36,7 @@
 
   <div class="resumen" *ngIf="totalSeleccionadas > 0">
     <p>{{ totalSeleccionadas }} butaca(s) seleccionada(s)</p>
-    <button class="continuar">Continuar a la compra</button>
+    <button class="continuar" (click)="irACheckout()">Continuar a la compra</button>
   </div>
 </div>
 

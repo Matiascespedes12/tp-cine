@@ -1,1 +1,37 @@
-<p>checkout works!</p>
+<div class="checkout" *ngIf="!compraExitosa">
+  <a routerLink="/" class="volver">← Volver a cartelera</a>
+
+  <h1>Resumen de compra</h1>
+
+  <div class="lista">
+    <div class="item" *ngFor="let butaca of butacas">
+      <div>
+        <strong>Butaca {{ butaca.fila }}{{ butaca.numero }}</strong>
+        <span class="tipo" *ngIf="butaca.tipo === 'vip'">VIP</span>
+        <span class="tipo accesible" *ngIf="butaca.tipo === 'accesible'">Accesible</span>
+      </div>
+      <span>${{ precioButaca(butaca) }}</span>
+    </div>
+  </div>
+
+  <p class="aviso-vip" *ngIf="hayVip">
+    Tu selección incluye butacas VIP, con un precio mayor al de una butaca común.
+  </p>
+
+  <div class="total">
+    <span>Total</span>
+    <strong>${{ total }}</strong>
+  </div>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <button class="confirmar" (click)="confirmarCompra()" [disabled]="comprando">
+    {{ comprando ? 'Procesando...' : 'Confirmar compra' }}
+  </button>
+</div>
+
+<div class="checkout exito" *ngIf="compraExitosa">
+  <h1>Compra confirmada</h1>
+  <p>Tus entradas quedaron registradas.</p>
+  <a routerLink="/" class="confirmar">Volver a la cartelera</a>
+</div>
