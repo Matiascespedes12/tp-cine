@@ -50,7 +50,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
 }
 
 .letra-fila {
@@ -61,17 +61,17 @@ h1 {
 
 .butacas-de-fila {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
 .butaca {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   border: 1px solid #444;
   background: #1e1e1e;
   color: #cfcfcf;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   cursor: pointer;
   display: flex;
   align-items: center;
