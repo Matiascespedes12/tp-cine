@@ -5,6 +5,8 @@ import { SeleccionButacas } from './public/seleccion-butacas/seleccion-butacas';
 import { Checkout } from './public/checkout/checkout';
 import { Login } from './auth/login/login';
 import { Registro } from './auth/registro/registro';
+import { Funciones } from './admin/funciones/funciones';
+import { adminGuard } from './core/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -13,4 +15,5 @@ export const routes: Routes = [
   { path: 'checkout', component: Checkout },
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },
+  { path: 'admin/funciones', component: Funciones, canActivate: [adminGuard] },
 ];
