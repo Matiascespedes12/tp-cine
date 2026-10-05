@@ -1,1 +1,41 @@
-<p>funciones works!</p>
+<div class="admin">
+  <h1>Funciones</h1>
+
+  <form (ngSubmit)="crear()">
+    <label>
+      Película
+      <select name="peliculaId" [(ngModel)]="peliculaId">
+        <option value="" disabled>Elegir</option>
+        <option *ngFor="let p of peliculas" [value]="p.id">{{ p.nombre }} ({{ p.duracion_min }} min)</option>
+      </select>
+    </label>
+
+    <div class="doble">
+      <label>
+        Fecha
+        <input type="date" name="fecha" [(ngModel)]="fecha" [min]="hoy">
+      </label>
+      <label>
+        Hora
+        <input type="time" name="hora" [(ngModel)]="hora">
+      </label>
+    </div>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <button type="submit" [disabled]="guardando">
+      {{ guardando ? 'Creando...' : 'Crear función' }}
+    </button>
+  </form>
+
+  <h2>Próximas funciones</h2>
+  <p *ngIf="proximas.length === 0" class="vacio">No hay funciones programadas.</p>
+  <div class="item" *ngFor="let f of proximas">
+    <div>
+      <strong>{{ f.peliculas.nombre }}</strong>
+      <span class="sala">{{ f.salas.nombre }}</span>
+    </div>
+    <span>{{ formatearFecha(f.fecha_hora_inicio) }}</span>
+  </div>
+</div>
