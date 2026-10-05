@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { Butacas, Butaca, Funcion } from '../butacas';
 
 interface ButacaConEstado extends Butaca {
@@ -14,12 +15,14 @@ interface ButacaConEstado extends Butaca {
   templateUrl: './seleccion-butacas.html',
   styleUrl: './seleccion-butacas.scss'
 })
-export class SeleccionButacas implements OnInit {
+export class SeleccionButacas implements OnInit, OnDestroy {
   funcion: Funcion | null = null;
   filas: string[] = [];
   butacasPorFila: { [fila: string]: ButacaConEstado[] } = {};
   butacasSeleccionadas: ButacaConEstado[] = [];
   cargando = true;
+  aviso: string | null = null;
+  private canal: RealtimeChannel | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -47,6 +50,17 @@ export class SeleccionButacas implements OnInit {
     this.agruparPorFila(butacasConEstado);
     this.cargando = false;
     this.cdr.detectChanges();
+
+    this.canal = this.butacasService.suscribirseAOcupacion(
+      funcionId,
+      (butacaId) => this.marcarOcupada(butacaId)
+    );
+  }
+
+  ngOnDestroy() {
+    if (this.canal) {
+      this.butacasService.cancelarSuscripcion(this.canal);
+    }
   }
 
   private agruparPorFila(butacas: ButacaConEstado[]) {
@@ -60,9 +74,27 @@ export class SeleccionButacas implements OnInit {
     this.filas = Object.keys(this.butacasPorFila).sort();
   }
 
+  // Se ejecuta cuando OTRA persona compra una butaca de esta función
+  private marcarOcupada(butacaId: string) {
+    for (const fila of this.filas) {
+      const butaca = this.butacasPorFila[fila].find(b => b.id === butacaId);
+      if (butaca) {
+        butaca.ocupada = true;
+        if (butaca.seleccionada) {
+          butaca.seleccionada = false;
+          this.butacasSeleccionadas = this.butacasSeleccionadas.filter(b => b.id !== butaca.id);
+          this.aviso = `La butaca ${butaca.fila}${butaca.numero} acaba de ser comprada por otra persona.`;
+        }
+        break;
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
   toggleButaca(butaca: ButacaConEstado) {
     if (butaca.ocupada) return;
 
+    this.aviso = null;
     butaca.seleccionada = !butaca.seleccionada;
 
     if (butaca.seleccionada) {

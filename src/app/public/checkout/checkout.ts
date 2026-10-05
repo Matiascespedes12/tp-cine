@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Compras, DetalleCompra } from '../compras';
 import { Butacas } from '../butacas';
+import { Auth } from '../../core/auth';
 
 interface ButacaCheckout {
   id: string;
@@ -29,6 +30,7 @@ export class Checkout implements OnInit {
     private router: Router,
     private comprasService: Compras,
     private butacasService: Butacas,
+    private auth: Auth,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -58,7 +60,7 @@ export class Checkout implements OnInit {
     return this.butacas.reduce((acc, b) => acc + this.precioButaca(b), 0);
   }
 
-    get hayVip(): boolean {
+  get hayVip(): boolean {
     return this.butacas.some(b => b.tipo === 'vip');
   }
 
@@ -73,7 +75,11 @@ export class Checkout implements OnInit {
       precio: this.precioButaca(b)
     }));
 
-    const resultado = await this.comprasService.confirmarCompra(this.funcionId, detalles, null);
+    // Si hay sesión, la entrada queda a nombre del usuario; si no, es compra anónima
+    const usuario = await this.auth.obtenerUsuarioActual();
+    const usuarioId = usuario ? usuario.id : null;
+
+    const resultado = await this.comprasService.confirmarCompra(this.funcionId, detalles, usuarioId);
 
     this.comprando = false;
 

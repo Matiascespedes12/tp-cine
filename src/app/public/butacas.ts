@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { Supabase } from '../core/supabase';
 
 export interface Butaca {
@@ -66,5 +67,21 @@ export class Butacas {
     }
 
     return data.map((e: any) => e.butaca_id);
+  }
+
+  // Avisa en tiempo real cada vez que alguien compra una butaca de esta función
+  suscribirseAOcupacion(funcionId: string, alOcuparse: (butacaId: string) => void): RealtimeChannel {
+    return this.supabase.client
+      .channel('entradas-funcion-' + funcionId)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'entradas', filter: `funcion_id=eq.${funcionId}` },
+        (payload: any) => alOcuparse(payload.new.butaca_id)
+      )
+      .subscribe();
+  }
+
+  cancelarSuscripcion(canal: RealtimeChannel) {
+    this.supabase.client.removeChannel(canal);
   }
 }

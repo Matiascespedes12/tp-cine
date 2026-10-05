@@ -34,6 +34,8 @@
     <span><span class="muestra vip"></span> VIP</span>
   </div>
 
+  <p class="aviso" *ngIf="aviso">{{ aviso }}</p>
+
   <div class="resumen" *ngIf="totalSeleccionadas > 0">
     <p>{{ totalSeleccionadas }} butaca(s) seleccionada(s)</p>
     <button class="continuar" (click)="irACheckout()">Continuar a la compra</button>
