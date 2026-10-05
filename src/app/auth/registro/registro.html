@@ -1,0 +1,63 @@
+<div class="auth">
+  <a routerLink="/" class="volver">← Volver a cartelera</a>
+
+  <h1>Crear cuenta</h1>
+
+  <form (ngSubmit)="registrar()">
+    <label>
+      Email
+      <input type="email" name="email" [(ngModel)]="email" autocomplete="email">
+    </label>
+
+    <label>
+      Contraseña
+      <input type="password" name="password" [(ngModel)]="password" autocomplete="new-password">
+    </label>
+
+    <div class="doble">
+      <label>
+        Nombre
+        <input type="text" name="nombre" [(ngModel)]="nombre">
+      </label>
+      <label>
+        Apellido
+        <input type="text" name="apellido" [(ngModel)]="apellido">
+      </label>
+    </div>
+
+    <label>
+      Fecha de nacimiento
+      <input type="date" name="fechaNac" [(ngModel)]="fechaNac" [max]="hoy">
+    </label>
+
+    <div class="doble">
+      <label>
+        Tipo de sangre
+        <select name="tipoSangre" [(ngModel)]="tipoSangre">
+          <option value="" disabled>Elegir</option>
+          <option *ngFor="let t of tiposSangre" [value]="t">{{ t }}</option>
+        </select>
+      </label>
+      <label>
+        Color de ojos
+        <select name="colorOjos" [(ngModel)]="colorOjos">
+          <option value="" disabled>Elegir</option>
+          <option *ngFor="let c of coloresOjos" [value]="c">{{ c }}</option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Días de vacaciones por año
+      <input type="number" name="diasVacaciones" [(ngModel)]="diasVacaciones" min="0" max="365">
+    </label>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <button type="submit" [disabled]="cargando">
+      {{ cargando ? 'Creando cuenta...' : 'Registrarme' }}
+    </button>
+  </form>
+
+  <p class="alternativa">¿Ya tenés cuenta? <a routerLink="/login">Iniciá sesión</a></p>
+</div>

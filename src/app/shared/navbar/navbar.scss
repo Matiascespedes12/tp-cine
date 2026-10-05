@@ -1,0 +1,64 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.logo {
+  color: #d4af37;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+
+  a {
+    color: #cfcfcf;
+    text-decoration: none;
+
+    &:hover {
+      color: #d4af37;
+    }
+
+    &.destacado {
+      background: #d4af37;
+      color: #121212;
+      font-weight: 600;
+      padding: 0.4rem 1rem;
+      border-radius: 6px;
+
+      &:hover {
+        background: #e0bd4a;
+        color: #121212;
+      }
+    }
+  }
+
+  .saludo {
+    color: #cfcfcf;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid #444;
+    color: #cfcfcf;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+      border-color: #d4af37;
+      color: #d4af37;
+    }
+  }
+}

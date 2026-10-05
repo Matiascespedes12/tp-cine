@@ -1,0 +1,13 @@
+<nav class="navbar">
+  <a routerLink="/" class="logo">TP Cine</a>
+
+  <div class="acciones">
+    @if (auth.perfil(); as perfil) {
+      <span class="saludo">Hola, {{ perfil.nombre }}</span>
+      <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+    } @else {
+      <a routerLink="/login">Iniciar sesión</a>
+      <a routerLink="/registro" class="destacado">Registrarse</a>
+    }
+  </div>
+</nav>

@@ -1,1 +1,25 @@
-<p>login works!</p>
+<div class="auth">
+  <a routerLink="/" class="volver">← Volver a cartelera</a>
+
+  <h1>Iniciar sesión</h1>
+
+  <form (ngSubmit)="iniciarSesion()">
+    <label>
+      Email
+      <input type="email" name="email" [(ngModel)]="email" autocomplete="email">
+    </label>
+
+    <label>
+      Contraseña
+      <input type="password" name="password" [(ngModel)]="password" autocomplete="current-password">
+    </label>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <button type="submit" [disabled]="cargando">
+      {{ cargando ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+  </form>
+
+  <p class="alternativa">¿No tenés cuenta? <a routerLink="/registro">Registrate</a></p>
+</div>
