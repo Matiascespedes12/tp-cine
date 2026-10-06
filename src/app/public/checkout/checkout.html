@@ -32,6 +32,15 @@
 
 <div class="checkout exito" *ngIf="compraExitosa">
   <h1>Compra confirmada</h1>
-  <p>Tus entradas quedaron registradas.</p>
+  <p>Presentá estos códigos QR en el ingreso. Cada uno sirve una sola vez.</p>
+
+  <div class="entradas">
+    <div class="entrada" *ngFor="let e of entradasConQr">
+      <strong>{{ e.etiqueta }}</strong>
+      <img [src]="e.imagenQr" [alt]="'QR de ' + e.etiqueta">
+      <code>{{ e.codigo }}</code>
+    </div>
+  </div>
+
   <a routerLink="/" class="confirmar">Volver a la cartelera</a>
 </div>

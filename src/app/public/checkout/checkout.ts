@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import QRCode from 'qrcode';
 import { Compras, DetalleCompra } from '../compras';
 import { Butacas } from '../butacas';
 import { Auth } from '../../core/auth';
@@ -10,6 +11,12 @@ interface ButacaCheckout {
   fila: string;
   numero: number;
   tipo: string;
+}
+
+interface EntradaConQr {
+  etiqueta: string;
+  codigo: string;
+  imagenQr: string;
 }
 
 @Component({
@@ -25,6 +32,7 @@ export class Checkout implements OnInit {
   comprando = false;
   compraExitosa = false;
   error: string | null = null;
+  entradasConQr: EntradaConQr[] = [];
 
   constructor(
     private router: Router,
@@ -81,13 +89,23 @@ export class Checkout implements OnInit {
 
     const resultado = await this.comprasService.confirmarCompra(this.funcionId, detalles, usuarioId);
 
-    this.comprando = false;
-
-    if (resultado.exito) {
+    if (resultado.exito && resultado.entradas) {
+      // Generamos una imagen QR por cada entrada comprada
+      this.entradasConQr = [];
+      for (const entrada of resultado.entradas) {
+        const butaca = this.butacas.find(b => b.id === entrada.butaca_id);
+        this.entradasConQr.push({
+          etiqueta: butaca ? `Butaca ${butaca.fila}${butaca.numero}` : 'Entrada',
+          codigo: entrada.qr_code,
+          imagenQr: await QRCode.toDataURL(entrada.qr_code, { width: 220, margin: 1 })
+        });
+      }
       this.compraExitosa = true;
     } else {
       this.error = resultado.error || 'Ocurrió un error al procesar la compra.';
     }
+
+    this.comprando = false;
     this.cdr.detectChanges();
   }
 }

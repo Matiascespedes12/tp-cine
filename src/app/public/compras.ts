@@ -6,6 +6,12 @@ export interface DetalleCompra {
   precio: number;
 }
 
+export interface EntradaComprada {
+  qr_code: string;
+  butaca_id: string;
+  precio: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,7 +26,7 @@ export class Compras {
     funcionId: string,
     detalles: DetalleCompra[],
     usuarioId: string | null
-  ): Promise<{ exito: boolean; error?: string }> {
+  ): Promise<{ exito: boolean; error?: string; entradas?: EntradaComprada[] }> {
     const entradas = detalles.map(d => ({
       funcion_id: funcionId,
       butaca_id: d.butacaId,
@@ -35,10 +41,18 @@ export class Compras {
       .insert(entradas);
 
     if (error) {
+      // 23505 = violación de la restricción única: alguien compró esa butaca antes
+      if (error.code === '23505') {
+        return { exito: false, error: 'Alguna de las butacas ya fue comprada por otra persona. Volvé al mapa y elegí otras.' };
+      }
       console.error('Error al confirmar la compra:', error);
       return { exito: false, error: error.message };
     }
 
-    return { exito: true };
+    // Devolvemos los códigos generados para poder mostrar los QR
+    return {
+      exito: true,
+      entradas: entradas.map(e => ({ qr_code: e.qr_code, butaca_id: e.butaca_id, precio: e.precio }))
+    };
   }
 }
