@@ -7,6 +7,9 @@
         <a routerLink="/admin/funciones">Funciones</a>
         <a routerLink="/admin/peliculas">Películas</a>
       }
+      @if (perfil.rol === 'admin' || perfil.rol === 'empleado') {
+        <a routerLink="/validar">Validar</a>
+      }
       <span class="saludo">Hola, {{ perfil.nombre }}</span>
       <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
     } @else {

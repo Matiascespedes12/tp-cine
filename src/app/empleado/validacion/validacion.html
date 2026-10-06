@@ -1,1 +1,17 @@
-<p>validacion works!</p>
+<div class="validacion">
+  <h1>Validar entrada</h1>
+  <p class="ayuda">Escribí o pegá el código que figura debajo del QR.</p>
+
+  <form (ngSubmit)="validar()">
+    <input type="text" name="codigo" [(ngModel)]="codigo" placeholder="QR-xxxxxxxx-xxxx-..." autocomplete="off">
+    <button type="submit" [disabled]="validando">
+      {{ validando ? 'Validando...' : 'Validar' }}
+    </button>
+  </form>
+
+  <p class="resultado" *ngIf="resultado"
+     [class.ok]="resultado === 'ok'"
+     [class.mal]="resultado !== 'ok'">
+    {{ mensajes[resultado] }}
+  </p>
+</div>
