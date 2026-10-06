@@ -6,6 +6,7 @@ import { Checkout } from './public/checkout/checkout';
 import { Login } from './auth/login/login';
 import { Registro } from './auth/registro/registro';
 import { Funciones } from './admin/funciones/funciones';
+import { PeliculasForm } from './admin/peliculas-form/peliculas-form';
 import { adminGuard } from './core/admin.guard';
 
 export const routes: Routes = [
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },
   { path: 'admin/funciones', component: Funciones, canActivate: [adminGuard] },
+  { path: 'admin/peliculas', component: PeliculasForm, canActivate: [adminGuard] },
 ];

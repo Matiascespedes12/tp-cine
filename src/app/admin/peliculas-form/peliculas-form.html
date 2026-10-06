@@ -1,0 +1,83 @@
+<div class="admin">
+  <h1>Películas</h1>
+
+  <form (ngSubmit)="crear()">
+    <label>
+      Nombre
+      <input type="text" name="nombre" [(ngModel)]="nombre">
+    </label>
+
+    <label>
+      Sinopsis
+      <textarea name="sinopsis" rows="3" [(ngModel)]="sinopsis"></textarea>
+    </label>
+
+    <div class="doble">
+      <label>
+        Duración (minutos)
+        <input type="number" name="duracionMin" [(ngModel)]="duracionMin" min="1">
+      </label>
+      <label>
+        Fecha de estreno
+        <input type="date" name="fechaEstreno" [(ngModel)]="fechaEstreno">
+      </label>
+    </div>
+
+    <div class="doble">
+      <label>
+        Formato
+        <select name="formato" [(ngModel)]="formato">
+          <option *ngFor="let f of formatos" [value]="f">{{ f }}</option>
+        </select>
+      </label>
+      <label>
+        Idioma
+        <select name="idioma" [(ngModel)]="idioma">
+          <option value="doblada">Doblada (castellano)</option>
+          <option value="subtitulada">Subtitulada</option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Restricción de edad
+      <select name="restriccionEdad" [(ngModel)]="restriccionEdad">
+        <option value="">Sin restricción</option>
+        <option value="13">+13</option>
+        <option value="18">+18</option>
+      </select>
+    </label>
+
+    <div class="generos">
+      <span>Géneros</span>
+      <div class="lista-generos">
+        <button type="button" *ngFor="let g of generos"
+                [class.activo]="generosSeleccionados.includes(g.id)"
+                (click)="toggleGenero(g.id)">
+          {{ g.nombre }}
+        </button>
+      </div>
+    </div>
+
+    <label>
+      Póster
+      <input type="file" accept="image/*" (change)="elegirPoster($event)">
+    </label>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <button type="submit" class="guardar" [disabled]="guardando">
+      {{ guardando ? 'Guardando...' : 'Crear película' }}
+    </button>
+  </form>
+
+  <h2>Películas cargadas</h2>
+  <div class="item" *ngFor="let p of peliculas">
+    <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre">
+    <div>
+      <strong>{{ p.nombre }}</strong>
+      <span class="meta">{{ p.duracion_min }} min · {{ p.formato }} · {{ p.idioma }}</span>
+    </div>
+  </div>
+</div>

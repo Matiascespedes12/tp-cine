@@ -4,7 +4,8 @@
   <div class="acciones">
     @if (auth.perfil(); as perfil) {
       @if (perfil.rol === 'admin') {
-        <a routerLink="/admin/funciones">Admin</a>
+        <a routerLink="/admin/funciones">Funciones</a>
+        <a routerLink="/admin/peliculas">Películas</a>
       }
       <span class="saludo">Hola, {{ perfil.nombre }}</span>
       <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
