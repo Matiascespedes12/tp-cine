@@ -29,6 +29,7 @@ export class Checkout implements OnInit {
   funcionId: string | null = null;
   butacas: ButacaCheckout[] = [];
   precioBase = 0;
+  porcentajeDescuento = 0;
   comprando = false;
   compraExitosa = false;
   error: string | null = null;
@@ -56,6 +57,7 @@ export class Checkout implements OnInit {
 
     const funcion = await this.butacasService.obtenerFuncion(this.funcionId!);
     this.precioBase = (funcion as any)?.precio_base || 2000;
+    this.porcentajeDescuento = await this.comprasService.obtenerDescuentoPrimeraCompra();
     this.cdr.detectChanges();
   }
 
@@ -64,8 +66,16 @@ export class Checkout implements OnInit {
     return this.precioBase;
   }
 
-  get total(): number {
+  get subtotal(): number {
     return this.butacas.reduce((acc, b) => acc + this.precioButaca(b), 0);
+  }
+
+  get descuento(): number {
+    return Math.round(this.subtotal * this.porcentajeDescuento / 100);
+  }
+
+  get total(): number {
+    return this.subtotal - this.descuento;
   }
 
   get hayVip(): boolean {
@@ -78,19 +88,19 @@ export class Checkout implements OnInit {
     this.comprando = true;
     this.cdr.detectChanges();
 
+    // El descuento se reparte proporcionalmente entre las entradas
+    const factor = 1 - this.porcentajeDescuento / 100;
     const detalles: DetalleCompra[] = this.butacas.map(b => ({
       butacaId: b.id,
-      precio: this.precioButaca(b)
+      precio: Math.round(this.precioButaca(b) * factor)
     }));
 
-    // Si hay sesión, la entrada queda a nombre del usuario; si no, es compra anónima
     const usuario = await this.auth.obtenerUsuarioActual();
     const usuarioId = usuario ? usuario.id : null;
 
     const resultado = await this.comprasService.confirmarCompra(this.funcionId, detalles, usuarioId);
 
     if (resultado.exito && resultado.entradas) {
-      // Generamos una imagen QR por cada entrada comprada
       this.entradasConQr = [];
       for (const entrada of resultado.entradas) {
         const butaca = this.butacas.find(b => b.id === entrada.butaca_id);

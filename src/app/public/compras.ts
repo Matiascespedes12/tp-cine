@@ -22,6 +22,16 @@ export class Compras {
     return 'QR-' + crypto.randomUUID();
   }
 
+  async obtenerDescuentoPrimeraCompra(): Promise<number> {
+    const { data, error } = await this.supabase.client.rpc('descuento_primera_compra');
+
+    if (error) {
+      console.error('Error al consultar el descuento:', error);
+      return 0;
+    }
+    return Number(data) || 0;
+  }
+
   async confirmarCompra(
     funcionId: string,
     detalles: DetalleCompra[],
@@ -46,7 +56,7 @@ export class Compras {
         return { exito: false, error: 'Alguna de las butacas ya fue comprada por otra persona. Volvé al mapa y elegí otras.' };
       }
       // 42501 = la política de seguridad rechazó la compra (restricción de edad)
-        if (error.code === '42501' || error.message.includes('row-level security')) {
+      if (error.code === '42501' || error.message.includes('row-level security')) {
         return {
           exito: false,
           error: usuarioId

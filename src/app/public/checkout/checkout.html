@@ -18,6 +18,11 @@
     Tu selección incluye butacas VIP, con un precio mayor al de una butaca común.
   </p>
 
+  <div class="desglose" *ngIf="porcentajeDescuento > 0">
+    <div><span>Subtotal</span><span>${{ subtotal }}</span></div>
+    <div class="descuento"><span>Descuento primera compra ({{ porcentajeDescuento }}%)</span><span>-${{ descuento }}</span></div>
+  </div>
+
   <div class="total">
     <span>Total</span>
     <strong>${{ total }}</strong>
