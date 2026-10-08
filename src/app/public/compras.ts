@@ -45,11 +45,19 @@ export class Compras {
       if (error.code === '23505') {
         return { exito: false, error: 'Alguna de las butacas ya fue comprada por otra persona. Volvé al mapa y elegí otras.' };
       }
+      // 42501 = la política de seguridad rechazó la compra (restricción de edad)
+        if (error.code === '42501' || error.message.includes('row-level security')) {
+        return {
+          exito: false,
+          error: usuarioId
+            ? 'No podés comprar entradas para esta película: no alcanzás la edad mínima.'
+            : 'Esta película tiene restricción de edad. Iniciá sesión para poder comprar la entrada.'
+        };
+      }
       console.error('Error al confirmar la compra:', error);
       return { exito: false, error: error.message };
     }
 
-    // Devolvemos los códigos generados para poder mostrar los QR
     return {
       exito: true,
       entradas: entradas.map(e => ({ qr_code: e.qr_code, butaca_id: e.butaca_id, precio: e.precio }))
