@@ -22,6 +22,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
   butacasSeleccionadas: ButacaConEstado[] = [];
   cargando = true;
   aviso: string | null = null;
+  yendoAComprar = false;
   private canal: RealtimeChannel | null = null;
 
   constructor(
@@ -61,6 +62,11 @@ export class SeleccionButacas implements OnInit, OnDestroy {
     if (this.canal) {
       this.butacasService.cancelarSuscripcion(this.canal);
     }
+  }
+
+  // Lo consulta el guard canDeactivate antes de dejar salir de la pantalla
+  hayCambiosPendientes(): boolean {
+    return this.butacasSeleccionadas.length > 0 && !this.yendoAComprar;
   }
 
   private agruparPorFila(butacas: ButacaConEstado[]) {
@@ -110,6 +116,7 @@ export class SeleccionButacas implements OnInit, OnDestroy {
   }
 
   irACheckout() {
+    this.yendoAComprar = true;
     this.router.navigate(['/checkout'], {
       state: {
         funcionId: this.funcion?.id,

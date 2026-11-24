@@ -10,11 +10,12 @@ import { PeliculasForm } from './admin/peliculas-form/peliculas-form';
 import { Validacion } from './empleado/validacion/validacion';
 import { adminGuard } from './core/admin.guard';
 import { personalGuard } from './core/personal.guard';
+import { salirSeleccionGuard } from './core/salir-seleccion.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'pelicula/:id', component: PeliculaDetalle },
-  { path: 'funcion/:id/butacas', component: SeleccionButacas },
+  { path: 'funcion/:id/butacas', component: SeleccionButacas, canDeactivate: [salirSeleccionGuard] },
   { path: 'checkout', component: Checkout },
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },

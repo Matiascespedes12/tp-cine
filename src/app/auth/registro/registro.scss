@@ -94,3 +94,13 @@ button {
     color: #d4af37;
   }
 }
+
+.campo-error {
+  color: #e05a5a;
+  font-size: 0.8rem;
+}
+
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: #e05a5a;
+}
