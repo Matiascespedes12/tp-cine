@@ -3,53 +3,73 @@
 
   <h1>Crear cuenta</h1>
 
-  <form (ngSubmit)="registrar()">
+  <form [formGroup]="form" (ngSubmit)="registrar()">
     <label>
       Email
-      <input type="email" name="email" [(ngModel)]="email" autocomplete="email">
+      <input type="email" formControlName="email" autocomplete="email">
+      <small class="campo-error" *ngIf="invalido('email')">
+        <ng-container *ngIf="tieneError('email', 'required')">El email es obligatorio.</ng-container>
+        <ng-container *ngIf="tieneError('email', 'email')">Ingresá un email válido.</ng-container>
+      </small>
     </label>
 
     <label>
       Contraseña
-      <input type="password" name="password" [(ngModel)]="password" autocomplete="new-password">
+      <input type="password" formControlName="password" autocomplete="new-password">
+      <small class="campo-error" *ngIf="invalido('password')">
+        <ng-container *ngIf="tieneError('password', 'required')">La contraseña es obligatoria.</ng-container>
+        <ng-container *ngIf="tieneError('password', 'minlength')">Tiene que tener al menos 6 caracteres.</ng-container>
+      </small>
     </label>
 
     <div class="doble">
       <label>
         Nombre
-        <input type="text" name="nombre" [(ngModel)]="nombre">
+        <input type="text" formControlName="nombre">
+        <small class="campo-error" *ngIf="invalido('nombre')">El nombre es obligatorio.</small>
       </label>
       <label>
         Apellido
-        <input type="text" name="apellido" [(ngModel)]="apellido">
+        <input type="text" formControlName="apellido">
+        <small class="campo-error" *ngIf="invalido('apellido')">El apellido es obligatorio.</small>
       </label>
     </div>
 
     <label>
       Fecha de nacimiento
-      <input type="date" name="fechaNac" [(ngModel)]="fechaNac" [max]="hoy">
+      <input type="date" formControlName="fechaNac" [max]="hoy">
+      <small class="campo-error" *ngIf="invalido('fechaNac')">
+        <ng-container *ngIf="tieneError('fechaNac', 'required')">La fecha de nacimiento es obligatoria.</ng-container>
+        <ng-container *ngIf="tieneError('fechaNac', 'fechaFutura')">La fecha no puede ser futura.</ng-container>
+      </small>
     </label>
 
     <div class="doble">
       <label>
         Tipo de sangre
-        <select name="tipoSangre" [(ngModel)]="tipoSangre">
+        <select formControlName="tipoSangre">
           <option value="" disabled>Elegir</option>
           <option *ngFor="let t of tiposSangre" [value]="t">{{ t }}</option>
         </select>
+        <small class="campo-error" *ngIf="invalido('tipoSangre')">Elegí un tipo de sangre.</small>
       </label>
       <label>
         Color de ojos
-        <select name="colorOjos" [(ngModel)]="colorOjos">
+        <select formControlName="colorOjos">
           <option value="" disabled>Elegir</option>
           <option *ngFor="let c of coloresOjos" [value]="c">{{ c }}</option>
         </select>
+        <small class="campo-error" *ngIf="invalido('colorOjos')">Elegí un color de ojos.</small>
       </label>
     </div>
 
     <label>
       Días de vacaciones por año
-      <input type="number" name="diasVacaciones" [(ngModel)]="diasVacaciones" min="0" max="365">
+      <input type="number" formControlName="diasVacaciones" min="0" max="365">
+      <small class="campo-error" *ngIf="invalido('diasVacaciones')">
+        <ng-container *ngIf="tieneError('diasVacaciones', 'required')">Este dato es obligatorio.</ng-container>
+        <ng-container *ngIf="tieneError('diasVacaciones', 'min') || tieneError('diasVacaciones', 'max')">Ingresá un número entre 0 y 365.</ng-container>
+      </small>
     </label>
 
     <p class="error" *ngIf="error">{{ error }}</p>

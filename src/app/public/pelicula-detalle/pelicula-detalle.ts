@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Peliculas, Pelicula } from '../peliculas';
 import { Resenas, Resena } from '../resenas';
+import { RestriccionEdadPipe } from '../../shared/restriccion-edad-pipe';
 
 @Component({
   selector: 'app-pelicula-detalle',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RestriccionEdadPipe],
   templateUrl: './pelicula-detalle.html',
   styleUrl: './pelicula-detalle.scss'
 })
@@ -34,15 +35,5 @@ export class PeliculaDetalle implements OnInit {
     this.promedio = await this.resenasService.obtenerPromedio(id);
     this.cargando = false;
     this.cdr.detectChanges();
-  }
-
-  formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleString('es-AR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   }
 }

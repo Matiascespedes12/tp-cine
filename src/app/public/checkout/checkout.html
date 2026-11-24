@@ -10,7 +10,7 @@
         <span class="tipo" *ngIf="butaca.tipo === 'vip'">VIP</span>
         <span class="tipo accesible" *ngIf="butaca.tipo === 'accesible'">Accesible</span>
       </div>
-      <span>${{ precioButaca(butaca) }}</span>
+      <span>{{ precioButaca(butaca) | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
     </div>
   </div>
 
@@ -19,13 +19,16 @@
   </p>
 
   <div class="desglose" *ngIf="porcentajeDescuento > 0">
-    <div><span>Subtotal</span><span>${{ subtotal }}</span></div>
-    <div class="descuento"><span>Descuento primera compra ({{ porcentajeDescuento }}%)</span><span>-${{ descuento }}</span></div>
+    <div><span>Subtotal</span><span>{{ subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</span></div>
+    <div class="descuento">
+      <span>Descuento primera compra ({{ porcentajeDescuento }}%)</span>
+      <span>-{{ descuento | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+    </div>
   </div>
 
   <div class="total">
     <span>Total</span>
-    <strong>${{ total }}</strong>
+    <strong>{{ total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
   </div>
 
   <p class="error" *ngIf="error">{{ error }}</p>
