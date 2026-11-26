@@ -10,6 +10,32 @@
       @if (perfil.rol === 'admin' || perfil.rol === 'empleado') {
         <a routerLink="/validar">Validar</a>
       }
+
+      <div class="campana-wrap">
+        <button type="button" class="campana" (click)="alternarPanel()" aria-label="Notificaciones">
+          🔔
+          @if (notificaciones.noLeidas() > 0) {
+            <span class="contador">{{ notificaciones.noLeidas() }}</span>
+          }
+        </button>
+
+        @if (panelAbierto()) {
+          <div class="panel">
+            <h4>Notificaciones</h4>
+            @if (notificaciones.lista().length === 0) {
+              <p class="vacio">No tenés notificaciones.</p>
+            } @else {
+              @for (n of notificaciones.lista(); track n.id) {
+                <div class="item" [class.nueva]="!n.leida">
+                  <p>{{ n.mensaje }}</p>
+                  <small>{{ n.fecha | date: 'dd/MM/yyyy HH:mm' }}</small>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+
       <span class="saludo">Hola, {{ perfil.nombre }}</span>
       <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
     } @else {

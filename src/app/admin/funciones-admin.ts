@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Supabase } from '../core/supabase';
 
+export interface ResumenCancelacion {
+  usuarios: number;
+  entradas: number;
+  anonimas: number;
+  credito_total: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -23,7 +30,7 @@ export class FuncionesAdmin {
   async obtenerProximasFunciones(): Promise<any[]> {
     const { data, error } = await this.supabase.client
       .from('funciones')
-      .select('id, fecha_hora_inicio, fecha_hora_fin, peliculas(nombre), salas(nombre)')
+      .select('id, fecha_hora_inicio, fecha_hora_fin, cancelada, peliculas(nombre), salas(nombre)')
       .gte('fecha_hora_inicio', new Date().toISOString())
       .order('fecha_hora_inicio');
 
@@ -56,5 +63,17 @@ export class FuncionesAdmin {
       .single();
 
     return { exito: true, sala: (data as any)?.salas?.nombre };
+  }
+
+  async cancelarFuncion(
+    funcionId: string
+  ): Promise<{ exito: boolean; resumen?: ResumenCancelacion; error?: string }> {
+    const { data, error } = await this.supabase.client
+      .rpc('cancelar_funcion', { p_funcion_id: funcionId });
+
+    if (error) {
+      return { exito: false, error: error.message };
+    }
+    return { exito: true, resumen: data as ResumenCancelacion };
   }
 }

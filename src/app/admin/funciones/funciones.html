@@ -31,11 +31,15 @@
 
   <h2>Próximas funciones</h2>
   <p *ngIf="proximas.length === 0" class="vacio">No hay funciones programadas.</p>
-  <div class="item" *ngFor="let f of proximas">
+  <div class="item" *ngFor="let f of proximas" [class.cancelada]="f.cancelada">
     <div>
       <strong>{{ f.peliculas.nombre }}</strong>
       <span class="sala">{{ f.salas.nombre }}</span>
+      <span class="etiqueta" *ngIf="f.cancelada">Cancelada</span>
     </div>
-    <span>{{ formatearFecha(f.fecha_hora_inicio) }}</span>
+    <div class="derecha">
+      <span>{{ f.fecha_hora_inicio | date:'EEE d MMM, HH:mm' }}</span>
+      <button type="button" class="peligro" *ngIf="!f.cancelada" (click)="cancelar(f)">Cancelar</button>
+    </div>
   </div>
 </div>

@@ -55,13 +55,28 @@ export class Funciones implements OnInit {
     this.cdr.detectChanges();
   }
 
-  formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleString('es-AR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  async cancelar(funcion: any) {
+    const pregunta =
+      `¿Cancelar la función de "${funcion.peliculas.nombre}"? ` +
+      'Todas las entradas vendidas pasan a crédito y se avisa a cada comprador. No se puede deshacer.';
+    if (!confirm(pregunta)) return;
+
+    this.mensaje = null;
+    this.error = null;
+
+    const resultado = await this.servicio.cancelarFuncion(funcion.id);
+
+    if (resultado.exito && resultado.resumen) {
+      const r = resultado.resumen;
+      this.mensaje =
+        `Función cancelada. Se acreditaron $${r.credito_total} a ${r.usuarios} usuario(s) (${r.entradas} entradas).` +
+        (r.anonimas > 0
+          ? ` ${r.anonimas} entrada(s) eran de compras anónimas y no se pueden acreditar.`
+          : '');
+      this.proximas = await this.servicio.obtenerProximasFunciones();
+    } else {
+      this.error = resultado.error || 'No se pudo cancelar la función.';
+    }
+    this.cdr.detectChanges();
   }
 }

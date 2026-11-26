@@ -102,3 +102,36 @@ button {
 .vacio {
   color: #b3b3b3;
 }
+
+.item.cancelada {
+  opacity: 0.55;
+}
+
+.item .derecha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.item .etiqueta {
+  margin-left: 0.6rem;
+  font-size: 0.7rem;
+  color: #e05a5a;
+  border: 1px solid #e05a5a;
+  border-radius: 10px;
+  padding: 0.1rem 0.5rem;
+}
+
+button.peligro {
+  background: transparent;
+  border: 1px solid #e05a5a;
+  color: #e05a5a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+
+  &:hover {
+    background: #e05a5a;
+    color: #121212;
+  }
+}

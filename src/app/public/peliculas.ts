@@ -85,6 +85,7 @@ export class Peliculas {
       .from('funciones')
       .select('*, salas(nombre)')
       .eq('pelicula_id', peliculaId)
+      .eq('cancelada', false)
       .gte('fecha_hora_inicio', new Date().toISOString())
       .order('fecha_hora_inicio');
 
@@ -96,3 +97,4 @@ export class Peliculas {
     return data;
   }
 }
+
