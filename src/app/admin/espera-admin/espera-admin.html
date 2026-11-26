@@ -1,0 +1,11 @@
+<h2>Lista de espera por función</h2>
+<p class="vacio" *ngIf="filas.length === 0">Nadie está en lista de espera.</p>
+
+<div class="fila" *ngFor="let f of filas">
+  <div>
+    <strong>{{ f.pelicula }}</strong>
+    <small>{{ f.fecha_hora_inicio | date:'EEE d MMM, HH:mm' }}</small>
+  </div>
+  <span class="etiqueta">{{ f.en_espera }} en espera</span>
+</div>
+
