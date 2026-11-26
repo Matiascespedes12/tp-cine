@@ -1,6 +1,6 @@
 # TP Cine: sistema de venta de entradas
 
-Aplicación web para un cine: los clientes ven la cartelera, eligen función y butacas en tiempo real, compran y reciben una entrada con QR. El personal valida las entradas y el administrador gestiona películas y funciones.
+Aplicación web para un cine: los clientes ven la cartelera, eligen función y butacas en tiempo real, compran y reciben una entrada con QR. El personal valida las entradas y el administrador gestiona películas, funciones y roles.
 
 Trabajo práctico 1 de Programación IV.
 
@@ -12,8 +12,9 @@ Trabajo práctico 1 de Programación IV.
 
 | Capa | Tecnología |
 |---|---|
-| Frontend | Angular (componentes standalone, signals, sin Zone.js) |
+| Frontend | Angular 22 (componentes standalone, signals, sin Zone.js) |
 | Backend | Supabase (PostgreSQL, Auth, Storage, Realtime) |
+| PWA | `@angular/pwa` con service worker (`ngsw`) |
 | Despliegue | Vercel (redeploy automático con cada push a `main`) |
 | QR | librería `qrcode` |
 
@@ -21,72 +22,91 @@ Trabajo práctico 1 de Programación IV.
 
 ```
 src/app/
-├── core/          Servicios y guards compartidos (Supabase, Auth, guards de rutas)
-├── shared/        Componentes reutilizables (barra de navegación)
-├── public/        Lo que ve el cliente: cartelera, detalle, butacas, checkout
-├── auth/          Login y registro
-├── admin/         Panel de administración: películas y funciones
+├── core/          Servicios y guards compartidos (Supabase, Auth, Permisos, Notificaciones, guards)
+├── shared/        Barra de navegación y pipe propio
+├── public/        Lo que ve el cliente: cartelera, detalle, butacas, checkout, perfil, propuestas
+├── auth/          Login y registro (formulario reactivo)
+├── admin/         Panel de administración: películas, funciones, propuestas, roles
 └── empleado/      Validación de entradas
 ```
 
-**Patrón general:** los componentes solo muestran datos y capturan eventos. Toda la comunicación con Supabase pasa por servicios inyectables (`Peliculas`, `Butacas`, `Compras`, `Auth`, etc.). Un único servicio `Supabase` crea el cliente, así hay una sola conexión en toda la app.
-
-**Base de datos (15 tablas):** usuarios, películas, géneros (relación N a N con películas), salas, butacas, funciones, entradas, reseñas, productos, categorías, combos, cupones, movimientos de puntos, recompensas, alertas y log de actividad.
+**Patrón general:** los componentes muestran datos y capturan eventos. Toda la comunicación con Supabase pasa por servicios inyectables. Un único servicio `Supabase` crea el cliente, así hay una sola conexión en toda la app.
 
 ## Decisiones técnicas
 
-**Las reglas de negocio críticas viven en la base de datos, no en el front.** El front puede ser manipulado desde el navegador, la base no.
+**Las reglas de negocio críticas viven en la base de datos, no en el front.** El front se puede manipular desde el navegador; la base no.
 
-- **Asignación automática de sala:** la función `crear_funcion` (PostgreSQL) elige la primera sala sin funciones superpuestas, con 30 minutos de margen entre función y función. Usa un candado (`pg_advisory_xact_lock`) para que dos administradores no puedan asignar la misma sala a la vez.
-- **Una butaca no se vende dos veces:** índice único parcial sobre `(funcion_id, butaca_id)` para entradas no canceladas. Si dos personas confirman la misma butaca, solo la primera gana.
-- **QR de un solo uso:** la función `validar_entrada` cambia el estado a `validada` con bloqueo de fila (`for update`). Un segundo intento devuelve "ya usada". Solo la puede ejecutar personal (empleado o admin).
-- **Butacas en tiempo real:** el mapa se suscribe con Supabase Realtime a los `INSERT` de `entradas` de esa función. Si otra persona compra, la butaca pasa a ocupada sin recargar, y si estaba seleccionada se deselecciona con un aviso.
+- **Asignación automática de sala:** la función `crear_funcion` elige la primera sala sin funciones superpuestas, con 30 minutos de margen. Ignora las funciones canceladas y usa un candado (`pg_advisory_xact_lock`) para que dos administradores no asignen la misma sala a la vez.
+- **Una butaca no se vende dos veces:** índice único parcial sobre `(funcion_id, butaca_id)` para entradas no canceladas.
+- **QR de un solo uso:** `validar_entrada` cambia el estado con bloqueo de fila (`for update`). Un segundo intento devuelve "ya usada".
+- **Butacas en tiempo real:** el mapa se suscribe con Supabase Realtime a los cambios de `entradas` de esa función. Si otra persona compra o alguien cancela, el mapa se actualiza sin recargar.
+- **Restricción de edad:** `edad_permitida` se aplica en la política de `entradas` y también dentro de las funciones de compra. La compra anónima se rechaza en películas con restricción.
+- **Cupón de primera compra:** `descuento_primera_compra` calcula el porcentaje desde la sesión, según el historial de entradas no canceladas.
 
-**Seguridad (Row Level Security):**
+**Puntos del último pedido del cliente**
 
-- Las tablas de catálogo tienen lectura pública. Las de administración exigen `es_admin()`.
-- Cada usuario solo ve y edita su propio perfil.
-- Al registrarse solo se puede crear el rol `cliente`; los administradores se crean directamente en la base.
-- La política de `entradas` impide comprar a nombre de otro usuario (`usuario_id` debe ser el propio o nulo para compra anónima).
-- Los guards de Angular (`adminGuard`, `personalGuard`) protegen las pantallas, pero la seguridad real son las políticas de la base.
+- **Cancelación de una función por el cine:** `cancelar_funcion` corre en **una sola transacción**: acredita a cada usuario el total de sus entradas, deja un movimiento de crédito, crea una notificación, libera las butacas y marca la función como cancelada. Si cualquier paso falla, no se acredita a nadie. El crédito se puede gastar en otra función de la misma película (`comprar_con_credito`, que recalcula los precios en la base).
+- **Notificaciones:** tabla `notificaciones` con Realtime. La campanita de la barra muestra los avisos sin recargar.
+- **Propuestas de películas:** cada cliente puede tener una propuesta pendiente a la vez (índice único parcial). El admin acepta o rechaza; al aceptar se abre el formulario de películas con los datos cargados, y la propuesta se marca aceptada recién cuando la película se crea.
+- **Roles configurables:** modelo usuario ↔ rol ↔ permiso. El admin crea roles con permisos (`peliculas`, `funciones`, `propuestas`, `validacion`) y los asigna por email. `tiene_permiso()` se usa en las políticas RLS y en las funciones; en Angular, un guard por permiso y una barra que muestra solo lo permitido. Gestionar roles es exclusivo del admin, para que nadie pueda darse permisos a sí mismo.
+- **Lista de espera:** cuando una función se agota, los usuarios registrados se anotan y ven su posición. Si alguien cancela su compra (hasta 2 horas antes, con crédito), `cancelar_entrada` ofrece la butaca al primero de la lista con **15 minutos** para comprarla. La reserva se impone con un trigger en `entradas`, también para la compra con crédito. Al vencer el plazo, pasa al siguiente. El admin ve cuánta gente espera por función.
 
-**Angular:**
+**Seguridad (Row Level Security)**
 
-- Componentes standalone y sintaxis moderna (`@if`, signals) donde corresponde.
-- El proyecto no usa Zone.js, por eso tras operaciones `async` se llama a `ChangeDetectorRef.detectChanges()` y la sesión se guarda en un `signal`.
-- Husos horarios: las funciones se guardan con `timestamptz` y el horario de Argentina (UTC-3) se indica de forma explícita al crearlas.
+- Catálogo con lectura pública; escritura solo con el permiso correspondiente.
+- Cada usuario ve y edita solo su perfil, y solo puede cambiar sus datos personales (permisos por columna): nunca su rol, crédito o puntos.
+- Al registrarse solo se puede crear el rol `cliente`, con crédito y puntos en cero.
+- Los administradores se crean directamente en la base.
+- Los guards protegen las pantallas, pero la seguridad real son las políticas y funciones de la base.
 
-**Imágenes:** los pósters se suben a Supabase Storage (bucket `posters`). Solo un admin puede subir o borrar; cualquiera puede verlos.
+**Angular**
+
+- Componentes standalone, signals y la sintaxis `@if` / `@for`.
+- Sin Zone.js: después de operaciones `async` se llama a `ChangeDetectorRef.detectChanges()`; la sesión y las notificaciones son signals.
+- **Pipes:** `date` y `currency` (idioma `es-AR` registrado) y un pipe propio, `restriccionEdad`.
+- **Formularios reactivos:** registro y propuestas, con `required`, `email`, `minLength`, `maxLength`, `min`/`max` y un validador propio (`fechaNoFutura`).
+- **Guards:** `canActivate` (administrador, personal y permisos) y `canDeactivate` (avisa si salís del mapa con butacas elegidas).
+- **PWA:** manifest, íconos y service worker; la app se instala y abre en su propia ventana.
+- Husos horarios: `timestamptz` y horario de Argentina (UTC-3) indicado de forma explícita al crear funciones.
+
+**Imágenes:** los pósters se suben a Supabase Storage (bucket `posters`). Cualquiera puede verlos; solo quien tiene el permiso de películas puede subir o borrar.
 
 ## Qué está implementado
 
-- Cartelera con buscador por título y filtro por género (varios géneros por película).
-- Detalle de película con funciones, reseñas y promedio.
-- Mapa de butacas con butacas accesibles (fila J) y VIP (filas R, S y T) diferenciadas, y aviso de VIP antes de pagar.
-- Compra con o sin sesión; la entrada queda a nombre del usuario si está logueado.
-- Entrada con código QR y código escrito (para ingreso manual).
-- Registro e inicio de sesión con los datos pedidos por el cliente.
-- Panel de administración: alta de películas con póster y creación de funciones con asignación automática de sala.
+- Cartelera con buscador por título y filtro por género (varios por película).
+- Detalle con funciones, reseñas y promedio.
+- Mapa de butacas en tiempo real, con accesibles (fila J) y VIP (filas R, S y T) diferenciadas, y aviso de VIP antes de pagar.
+- Registro e inicio de sesión; barra con sesión y notificaciones.
+- Compra con o sin sesión, cupón de primera compra, uso del crédito, QR por entrada con el código escrito para ingreso manual.
+- Mi perfil: crédito, entradas con cancelación hasta 2 horas antes, y listas de espera con posición.
+- Panel de administración: películas con póster, funciones con sala automática y cancelación atómica, propuestas, roles y lista de espera por función.
 - Validación de entradas por personal.
+- PWA instalable.
 
 ## Pendiente
 
-Funcionalidades del pedido del cliente que todavía no están:
+Funcionalidades del pedido original que no están:
 
-- Cupón del 20% en la primera compra y cupones por edad.
-- Bloqueo de compra por restricción de edad (+13 y +18).
 - Candy bar, combos y programa de puntos.
-- Generación de PDF de la entrada y escaneo con cámara (hoy el código se ingresa a mano).
-- Cancelación con crédito, preventa, "Próximamente" y "Mis películas".
-- Reportes, gráficos y log de actividad.
-- Funciones repetidas por día de la semana.
-- PWA.
+- PDF de la entrada y escaneo del QR con cámara (hoy el código se escribe a mano).
+- Preventa, "Próximamente", alertas y "Mis películas".
+- Reseñas desde la app (hoy solo se muestran).
+- Las 3 películas más vendidas en el home.
+- Reportes con gráficos y exportación, y log de actividad.
+- Administración de salas y butacas, y funciones repetidas por día de la semana.
+- Notificaciones push reales (hoy los avisos van por la campanita en tiempo real).
 
 ## Limitaciones conocidas
 
-- El precio base ($2000) y el recargo VIP (50%) están en el código; a futuro deberían configurarse desde el admin.
-- La lectura de `entradas` es pública para poder mostrar butacas ocupadas. A futuro conviene reemplazarla por una vista que solo exponga qué butacas están tomadas, sin los códigos QR.
+- **Los 15 minutos de la lista de espera no corren con un proceso en segundo plano:** se procesan cuando alguien abre el mapa o "Mi perfil". Con `pg_cron` se resolvería.
+- Los permisos de roles son un conjunto fijo de cuatro, que coinciden con las secciones del admin que existen (no hay pantalla de reportes).
+- Crear un rol son dos inserts desde el cliente; lo correcto sería una función transaccional, como en la cancelación de funciones.
+- En la compra común, el precio con descuento lo calcula el front. En la compra con crédito, lo calcula la base.
+- La lectura de `entradas` es pública para poder mostrar butacas ocupadas; a futuro conviene reemplazarla por una vista sin los códigos QR.
 - La butaca se bloquea al confirmar la compra, no al seleccionarla.
+- `canDeactivate` solo intercepta la navegación dentro de la app (no cubre cerrar la pestaña).
+- El precio base ($2000) y el recargo VIP (×1,5) están en el código; no hay pasarela de pago.
+- El admin no ve el nombre de quien envía una propuesta.
 
 ## Ejecutar en local
 
