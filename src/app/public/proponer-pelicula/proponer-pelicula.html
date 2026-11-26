@@ -1,0 +1,67 @@
+<div class="proponer">
+  <a routerLink="/" class="volver">← Volver a cartelera</a>
+
+  <h1>Proponé una película</h1>
+
+  <p *ngIf="cargando">Cargando...</p>
+
+  <p class="aviso" *ngIf="!cargando && sinSesion">
+    Para proponer una película tenés que <a routerLink="/login">iniciar sesión</a>.
+  </p>
+
+  <ng-container *ngIf="!cargando && !sinSesion">
+    <p class="ayuda">Contanos qué película te gustaría ver en el cine y por qué. Podés tener una propuesta pendiente a la vez.</p>
+
+    <p class="aviso" *ngIf="hayPendiente">
+      Ya tenés una propuesta pendiente. Cuando la revisemos vas a poder enviar otra.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="enviar()" *ngIf="!hayPendiente">
+      <label>
+        Título
+        <input type="text" formControlName="titulo">
+        <small class="campo-error" *ngIf="invalido('titulo')">
+          <ng-container *ngIf="tieneError('titulo', 'required')">El título es obligatorio.</ng-container>
+          <ng-container *ngIf="tieneError('titulo', 'maxlength')">Máximo 120 caracteres.</ng-container>
+        </small>
+      </label>
+
+      <label>
+        Descripción
+        <textarea rows="3" formControlName="descripcion"></textarea>
+        <small class="campo-error" *ngIf="invalido('descripcion')">
+          <ng-container *ngIf="tieneError('descripcion', 'required')">La descripción es obligatoria.</ng-container>
+          <ng-container *ngIf="tieneError('descripcion', 'maxlength')">Máximo 1000 caracteres.</ng-container>
+        </small>
+      </label>
+
+      <label>
+        ¿Por qué querés verla en el cine?
+        <textarea rows="3" formControlName="motivo"></textarea>
+        <small class="campo-error" *ngIf="invalido('motivo')">
+          <ng-container *ngIf="tieneError('motivo', 'required')">Contanos tu motivo.</ng-container>
+          <ng-container *ngIf="tieneError('motivo', 'maxlength')">Máximo 1000 caracteres.</ng-container>
+        </small>
+      </label>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+
+      <button type="submit" [disabled]="enviando">
+        {{ enviando ? 'Enviando...' : 'Enviar propuesta' }}
+      </button>
+    </form>
+
+    <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <h2 *ngIf="propuestas.length > 0">Mis propuestas</h2>
+    <div class="propuesta" *ngFor="let p of propuestas">
+      <div>
+        <strong>{{ p.titulo }}</strong>
+        <small>{{ p.fecha | date:'d MMM y' }}</small>
+      </div>
+      <span class="estado" [class]="p.estado">{{ estadoTexto(p.estado) }}</span>
+    </div>
+  </ng-container>
+</div>
+
+

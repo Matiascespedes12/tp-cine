@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PeliculasAdmin } from '../peliculas-admin';
+import { PropuestasAdmin } from '../propuestas-admin';
 
 @Component({
   selector: 'app-peliculas-form',
@@ -25,16 +26,28 @@ export class PeliculasForm implements OnInit {
 
   formatos = ['2D', '3D', '4D', '5D'];
 
+  // Si la película viene de una propuesta, la guardamos para aceptarla al crear
+  propuestaId: string | null = null;
+
   error: string | null = null;
   mensaje: string | null = null;
   guardando = false;
 
   constructor(
     private servicio: PeliculasAdmin,
+    private propuestas: PropuestasAdmin,
     private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
+    // Datos enviados desde la pantalla de propuestas (si los hay)
+    const estado = history.state as any;
+    if (estado && estado.propuestaId) {
+      this.propuestaId = estado.propuestaId;
+      this.nombre = estado.titulo || '';
+      this.sinopsis = estado.descripcion || '';
+    }
+
     this.generos = await this.servicio.obtenerGeneros();
     this.peliculas = await this.servicio.obtenerPeliculas();
     this.cdr.detectChanges();
@@ -85,6 +98,16 @@ export class PeliculasForm implements OnInit {
 
     if (resultado.exito) {
       this.mensaje = `Película "${this.nombre}" creada.`;
+
+      // Si venía de una propuesta, ahora sí se marca como aceptada (y se avisa al cliente)
+      if (this.propuestaId) {
+        const r = await this.propuestas.resolver(this.propuestaId, 'aceptada');
+        this.mensaje += r.exito
+          ? ' La propuesta quedó aceptada y se avisó al cliente.'
+          : ' Ojo: no se pudo marcar la propuesta como aceptada.';
+        this.propuestaId = null;
+      }
+
       this.nombre = '';
       this.sinopsis = '';
       this.duracionMin = null;

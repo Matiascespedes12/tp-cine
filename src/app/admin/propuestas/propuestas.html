@@ -1,0 +1,23 @@
+<div class="admin">
+  <h1>Propuestas de películas</h1>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacio" *ngIf="!cargando && pendientes.length === 0">No hay propuestas pendientes.</p>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+  <div class="propuesta" *ngFor="let p of pendientes">
+    <div class="cabecera">
+      <strong>{{ p.titulo }}</strong>
+      <small>{{ p.fecha | date:'d MMM y' }}</small>
+    </div>
+    <p class="campo"><span>Descripción</span>{{ p.descripcion }}</p>
+    <p class="campo"><span>Por qué la quiere</span>{{ p.motivo }}</p>
+    <div class="botones">
+      <button type="button" class="aceptar" (click)="aceptar(p)">Aceptar y crear película</button>
+      <button type="button" class="peligro" (click)="rechazar(p)">Rechazar</button>
+    </div>
+  </div>
+</div>
+

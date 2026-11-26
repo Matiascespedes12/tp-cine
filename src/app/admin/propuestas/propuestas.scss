@@ -1,0 +1,94 @@
+.admin {
+  background: #121212;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #f2f2f2;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+}
+
+.vacio {
+  color: #b3b3b3;
+}
+
+.error {
+  color: #e05a5a;
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: #6fbf73;
+  font-size: 0.9rem;
+}
+
+.propuesta {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.6rem;
+
+  strong {
+    color: #d4af37;
+    font-size: 1.05rem;
+  }
+
+  small {
+    color: #888;
+  }
+}
+
+.campo {
+  font-size: 0.9rem;
+  color: #cfcfcf;
+  margin: 0.4rem 0;
+
+  span {
+    display: block;
+    color: #888;
+    font-size: 0.75rem;
+  }
+}
+
+.botones {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+
+  button {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .aceptar {
+    background: #d4af37;
+    border: none;
+    color: #121212;
+  }
+
+  .peligro {
+    background: transparent;
+    border: 1px solid #e05a5a;
+    color: #e05a5a;
+
+    &:hover {
+      background: #e05a5a;
+      color: #121212;
+    }
+  }
+}
