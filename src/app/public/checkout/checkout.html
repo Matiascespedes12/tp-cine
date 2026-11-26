@@ -26,9 +26,22 @@
     </div>
   </div>
 
+  <label class="credito" *ngIf="credito > 0">
+    <input type="checkbox" [checked]="usarCredito" (change)="alternarCredito()">
+    <span>Usar mi crédito ({{ credito | currency:'ARS':'symbol-narrow':'1.0-0' }} disponible)</span>
+  </label>
+
+  <div class="desglose" *ngIf="usarCredito">
+    <div><span>Total</span><span>{{ total | currency:'ARS':'symbol-narrow':'1.0-0' }}</span></div>
+    <div class="descuento">
+      <span>Crédito aplicado</span>
+      <span>-{{ creditoAplicado | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+  </div>
+
   <div class="total">
-    <span>Total</span>
-    <strong>{{ total | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+    <span>A pagar</span>
+    <strong>{{ aPagar | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
   </div>
 
   <p class="error" *ngIf="error">{{ error }}</p>
@@ -41,6 +54,21 @@
 <div class="checkout exito" *ngIf="compraExitosa">
   <h1>Compra confirmada</h1>
   <p>Presentá estos códigos QR en el ingreso. Cada uno sirve una sola vez.</p>
+
+  <div class="desglose resumen-final">
+    <div *ngIf="creditoUsadoFinal > 0">
+      <span>Crédito usado</span>
+      <span>{{ creditoUsadoFinal | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+    <div>
+      <span>Total pagado</span>
+      <span>{{ aPagarFinal | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+    <div *ngIf="usarCredito || creditoUsadoFinal > 0">
+      <span>Crédito restante</span>
+      <span>{{ credito | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+  </div>
 
   <div class="entradas">
     <div class="entrada" *ngFor="let e of entradasConQr">

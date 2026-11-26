@@ -35,6 +35,14 @@ export class Checkout implements OnInit {
   error: string | null = null;
   entradasConQr: EntradaConQr[] = [];
 
+  // Crédito del usuario y si decidió usarlo
+  credito = 0;
+  usarCredito = false;
+
+  // Lo que realmente se descontó y lo que queda por pagar (para la pantalla final)
+  creditoUsadoFinal = 0;
+  aPagarFinal = 0;
+
   constructor(
     private router: Router,
     private comprasService: Compras,
@@ -58,6 +66,13 @@ export class Checkout implements OnInit {
     const funcion = await this.butacasService.obtenerFuncion(this.funcionId!);
     this.precioBase = (funcion as any)?.precio_base || 2000;
     this.porcentajeDescuento = await this.comprasService.obtenerDescuentoPrimeraCompra();
+
+    // Solo si hay sesión se consulta el crédito
+    const usuario = await this.auth.obtenerUsuarioActual();
+    if (usuario) {
+      this.credito = await this.comprasService.obtenerCredito(usuario.id);
+    }
+
     this.cdr.detectChanges();
   }
 
@@ -78,31 +93,71 @@ export class Checkout implements OnInit {
     return this.subtotal - this.descuento;
   }
 
+  // Cuánto crédito se aplicaría: nunca más que el total ni más que el saldo
+  get creditoAplicado(): number {
+    return this.usarCredito ? Math.min(this.credito, this.total) : 0;
+  }
+
+  get aPagar(): number {
+    return this.total - this.creditoAplicado;
+  }
+
   get hayVip(): boolean {
     return this.butacas.some(b => b.tipo === 'vip');
+  }
+
+  alternarCredito() {
+    this.usarCredito = !this.usarCredito;
   }
 
   async confirmarCompra() {
     if (!this.funcionId) return;
 
     this.comprando = true;
+    this.error = null;
     this.cdr.detectChanges();
 
-    // El descuento se reparte proporcionalmente entre las entradas
-    const factor = 1 - this.porcentajeDescuento / 100;
-    const detalles: DetalleCompra[] = this.butacas.map(b => ({
-      butacaId: b.id,
-      precio: Math.round(this.precioButaca(b) * factor)
-    }));
+    let entradas: { qr_code: string; butaca_id: string }[] | undefined;
+    let errorCompra: string | undefined;
 
-    const usuario = await this.auth.obtenerUsuarioActual();
-    const usuarioId = usuario ? usuario.id : null;
+    if (this.usarCredito && this.credito > 0) {
+      // Camino con crédito: la base calcula precios y descuenta todo en una transacción
+      const r = await this.comprasService.confirmarCompraConCredito(
+        this.funcionId,
+        this.butacas.map(b => b.id)
+      );
+      if (r.exito) {
+        entradas = r.entradas;
+        this.creditoUsadoFinal = r.creditoUsado ?? 0;
+        this.aPagarFinal = r.aPagar ?? 0;
+        this.credito -= this.creditoUsadoFinal;
+      } else {
+        errorCompra = r.error;
+      }
+    } else {
+      // Camino de siempre (con o sin sesión, sin crédito)
+      const factor = 1 - this.porcentajeDescuento / 100;
+      const detalles: DetalleCompra[] = this.butacas.map(b => ({
+        butacaId: b.id,
+        precio: Math.round(this.precioButaca(b) * factor)
+      }));
 
-    const resultado = await this.comprasService.confirmarCompra(this.funcionId, detalles, usuarioId);
+      const usuario = await this.auth.obtenerUsuarioActual();
+      const usuarioId = usuario ? usuario.id : null;
 
-    if (resultado.exito && resultado.entradas) {
+      const r = await this.comprasService.confirmarCompra(this.funcionId, detalles, usuarioId);
+      if (r.exito) {
+        entradas = r.entradas;
+        this.creditoUsadoFinal = 0;
+        this.aPagarFinal = this.total;
+      } else {
+        errorCompra = r.error;
+      }
+    }
+
+    if (entradas) {
       this.entradasConQr = [];
-      for (const entrada of resultado.entradas) {
+      for (const entrada of entradas) {
         const butaca = this.butacas.find(b => b.id === entrada.butaca_id);
         this.entradasConQr.push({
           etiqueta: butaca ? `Butaca ${butaca.fila}${butaca.numero}` : 'Entrada',
@@ -112,7 +167,7 @@ export class Checkout implements OnInit {
       }
       this.compraExitosa = true;
     } else {
-      this.error = resultado.error || 'Ocurrió un error al procesar la compra.';
+      this.error = errorCompra || 'Ocurrió un error al procesar la compra.';
     }
 
     this.comprando = false;
