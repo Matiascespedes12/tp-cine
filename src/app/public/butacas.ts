@@ -69,14 +69,15 @@ export class Butacas {
     return data.map((e: any) => e.butaca_id);
   }
 
-  // Avisa en tiempo real cada vez que alguien compra una butaca de esta función
-  suscribirseAOcupacion(funcionId: string, alOcuparse: (butacaId: string) => void): RealtimeChannel {
+  // Avisa en tiempo real cada vez que cambia algo en las entradas de esta función
+  // (una compra nueva o una cancelación que libera una butaca)
+  suscribirseAOcupacion(funcionId: string, alCambiar: () => void): RealtimeChannel {
     return this.supabase.client
       .channel('entradas-funcion-' + funcionId)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'entradas', filter: `funcion_id=eq.${funcionId}` },
-        (payload: any) => alOcuparse(payload.new.butaca_id)
+        { event: '*', schema: 'public', table: 'entradas', filter: `funcion_id=eq.${funcionId}` },
+        () => alCambiar()
       )
       .subscribe();
   }
@@ -85,3 +86,5 @@ export class Butacas {
     this.supabase.client.removeChannel(canal);
   }
 }
+
+

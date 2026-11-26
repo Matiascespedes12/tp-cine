@@ -34,6 +34,27 @@
     <span><span class="muestra vip"></span> VIP</span>
   </div>
 
+  <div class="espera" *ngIf="agotada">
+    <p>Esta función está agotada.</p>
+
+    <ng-container *ngIf="estadoEspera === null">
+      <button type="button" class="anotarme" *ngIf="logueado" [disabled]="anotando" (click)="anotarse()">
+        {{ anotando ? 'Anotando...' : 'Anotarme en la lista de espera' }}
+      </button>
+      <p class="ayuda" *ngIf="!logueado">
+        <a routerLink="/login">Iniciá sesión</a> para anotarte en la lista de espera.
+      </p>
+    </ng-container>
+
+    <p class="ok" *ngIf="estadoEspera === 'esperando'">
+      Estás en la lista de espera. Tu posición es la {{ posicionEspera }}. Si se libera una butaca, te avisamos por la campanita.
+    </p>
+  </div>
+
+  <p class="ok" *ngIf="estadoEspera === 'ofrecida' && !agotada">
+    Te reservamos una butaca. Tenés hasta las {{ ofertaHasta | date:'HH:mm' }} para comprarla.
+  </p>
+
   <p class="aviso" *ngIf="aviso">{{ aviso }}</p>
 
   <div class="resumen" *ngIf="totalSeleccionadas > 0">
@@ -43,3 +64,9 @@
 </div>
 
 <p *ngIf="cargando">Cargando mapa de butacas...</p>
+
+
+
+
+
+

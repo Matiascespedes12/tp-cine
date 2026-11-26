@@ -1,1 +1,56 @@
-<p>perfil works!</p>
+<div class="perfil">
+  <a routerLink="/" class="volver">← Volver a cartelera</a>
+
+  <h1>Mi perfil</h1>
+
+  <p *ngIf="cargando">Cargando...</p>
+
+  <p class="aviso" *ngIf="!cargando && sinSesion">
+    Tenés que <a routerLink="/login">iniciar sesión</a> para ver tu perfil.
+  </p>
+
+  <ng-container *ngIf="!cargando && !sinSesion">
+    <div class="credito">
+      <span>Mi crédito</span>
+      <strong>{{ credito | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+    </div>
+
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <h2>Mis listas de espera</h2>
+    <p class="vacio" *ngIf="esperas.length === 0">No estás anotado en ninguna lista de espera.</p>
+    <div class="tarjeta" *ngFor="let w of esperas">
+      <div>
+        <strong>{{ w.pelicula }}</strong>
+        <small>{{ w.fecha_hora_inicio | date:'EEE d MMM, HH:mm' }}</small>
+      </div>
+      <div class="derecha">
+        <span class="etiqueta" *ngIf="w.estado === 'esperando'">Posición {{ w.posicion }}</span>
+        <ng-container *ngIf="w.estado === 'ofrecida'">
+          <span class="etiqueta oferta">Butaca reservada hasta las {{ w.oferta_hasta | date:'HH:mm' }}</span>
+          <a class="comprar" [routerLink]="['/funcion', w.funcion_id, 'butacas']">Comprar</a>
+        </ng-container>
+      </div>
+    </div>
+
+    <h2>Mis entradas</h2>
+    <p class="vacio" *ngIf="entradas.length === 0">Todavía no tenés entradas.</p>
+    <div class="tarjeta" *ngFor="let e of entradas" [class.apagada]="e.estado === 'cancelada'">
+      <div>
+        <strong>{{ e.funciones.peliculas.nombre }}</strong>
+        <small>
+          {{ e.funciones.salas.nombre }} · butaca {{ e.butacas.fila }}{{ e.butacas.numero }} ·
+          {{ e.funciones.fecha_hora_inicio | date:'EEE d MMM, HH:mm' }}
+        </small>
+        <small>{{ e.precio | currency:'ARS':'symbol-narrow':'1.0-0' }}</small>
+      </div>
+      <div class="derecha">
+        <span class="etiqueta" [class.usada]="e.estado === 'validada'" [class.cancelada]="e.estado === 'cancelada'">
+          {{ estadoTexto(e) }}
+        </span>
+        <button type="button" class="peligro" *ngIf="puedeCancelar(e)" (click)="cancelar(e)">Cancelar</button>
+      </div>
+    </div>
+  </ng-container>
+</div>
