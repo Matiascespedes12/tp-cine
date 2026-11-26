@@ -3,13 +3,22 @@
 
   <div class="acciones">
     @if (auth.perfil(); as perfil) {
-      @if (perfil.rol === 'admin') {
+      @if (permisos.tiene('funciones')) {
         <a routerLink="/admin/funciones">Funciones</a>
+      }
+      @if (permisos.tiene('peliculas')) {
         <a routerLink="/admin/peliculas">Películas</a>
       }
-      @if (perfil.rol === 'admin' || perfil.rol === 'empleado') {
+      @if (permisos.tiene('propuestas')) {
+        <a routerLink="/admin/propuestas">Propuestas</a>
+      }
+      @if (perfil.rol === 'admin') {
+        <a routerLink="/admin/roles">Roles</a>
+      }
+      @if (perfil.rol === 'admin' || perfil.rol === 'empleado' || permisos.tiene('validacion')) {
         <a routerLink="/validar">Validar</a>
       }
+      <a routerLink="/proponer">Proponer película</a>
 
       <div class="campana-wrap">
         <button type="button" class="campana" (click)="alternarPanel()" aria-label="Notificaciones">

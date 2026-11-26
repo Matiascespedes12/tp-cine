@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../core/auth';
 import { Notificaciones } from '../../core/notificaciones';
+import { Permisos } from '../../core/permisos';
 
 @Component({
   selector: 'app-navbar',
@@ -17,6 +18,7 @@ export class Navbar {
   constructor(
     public auth: Auth,
     public notificaciones: Notificaciones,
+    public permisos: Permisos,
     private router: Router
   ) {}
 

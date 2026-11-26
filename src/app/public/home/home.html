@@ -25,7 +25,8 @@
 
   <div class="grilla" *ngIf="!cargando">
     <div class="card" *ngFor="let pelicula of peliculasFiltradas" [routerLink]="['/pelicula', pelicula.id]">
-      <img [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
+      <img *ngIf="pelicula.imagen_url" [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
+      <div class="sin-poster" *ngIf="!pelicula.imagen_url">{{ pelicula.nombre }}</div>
       <div class="info">
         <h3>{{ pelicula.nombre }}</h3>
         <p class="meta">{{ pelicula.duracion_min }} min · {{ pelicula.formato }} · {{ pelicula.idioma }}</p>
