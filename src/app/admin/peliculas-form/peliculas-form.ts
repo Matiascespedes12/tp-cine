@@ -122,3 +122,5 @@ export class PeliculasForm implements OnInit {
     this.cdr.detectChanges();
   }
 }
+
+

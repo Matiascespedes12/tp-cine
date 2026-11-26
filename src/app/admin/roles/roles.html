@@ -1,0 +1,59 @@
+<div class="admin">
+  <h1>Roles y permisos</h1>
+
+  <form (ngSubmit)="crear()">
+    <label>
+      Nombre del rol
+      <input type="text" name="nombre" [(ngModel)]="nombre" placeholder="Ej: Programación">
+    </label>
+
+    <div class="permisos">
+      <span>Permisos</span>
+      <div class="lista-permisos">
+        <button type="button" *ngFor="let p of permisosDisponibles"
+                [class.activo]="permisosSeleccionados.includes(p.clave)"
+                (click)="togglePermiso(p.clave)">
+          {{ p.etiqueta }}
+        </button>
+      </div>
+    </div>
+
+    <button type="submit" class="guardar" [disabled]="guardando">
+      {{ guardando ? 'Creando...' : 'Crear rol' }}
+    </button>
+  </form>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+  <h2>Roles creados</h2>
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacio" *ngIf="!cargando && roles.length === 0">Todavía no hay roles.</p>
+
+  <div class="rol" *ngFor="let rol of roles">
+    <div class="cabecera">
+      <strong>{{ rol.nombre }}</strong>
+      <button type="button" class="peligro" (click)="eliminar(rol)">Eliminar rol</button>
+    </div>
+
+    <div class="etiquetas">
+      <span class="etiqueta" *ngFor="let p of rol.permisos">{{ etiqueta(p) }}</span>
+    </div>
+
+    <div class="asignados">
+      <span class="titulo">Usuarios con este rol</span>
+      <p class="vacio" *ngIf="asignacionesDe(rol.id).length === 0">Nadie todavía.</p>
+      <div class="asignado" *ngFor="let a of asignacionesDe(rol.id)">
+        <span>{{ a.nombre }} {{ a.apellido }} ({{ a.email }})</span>
+        <button type="button" class="quitar" (click)="quitar(a, rol)">Quitar</button>
+      </div>
+    </div>
+
+    <div class="asignar">
+      <input type="email" placeholder="Email del usuario" [(ngModel)]="emailPorRol[rol.id]">
+      <button type="button" class="guardar" (click)="asignar(rol)">Asignar</button>
+    </div>
+  </div>
+</div>
+
+
