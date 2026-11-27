@@ -34,7 +34,7 @@ export class PeliculasAdmin {
   async obtenerPeliculas(): Promise<any[]> {
     const { data, error } = await this.supabase.client
       .from('peliculas')
-      .select('id, nombre, duracion_min, formato, idioma, imagen_url')
+      .select('id, nombre, duracion_min, formato, idioma, imagen_url, visible')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -42,6 +42,23 @@ export class PeliculasAdmin {
       return [];
     }
     return data;
+  }
+
+  async cambiarVisibilidad(id: string, visible: boolean): Promise<{ exito: boolean; error?: string }> {
+    const { data, error } = await this.supabase.client
+      .from('peliculas')
+      .update({ visible })
+      .eq('id', id)
+      .select('id');
+
+    if (error) {
+      return { exito: false, error: error.message };
+    }
+    // Si la política de seguridad no deja actualizar, no hay error pero tampoco filas
+    if (!data || data.length === 0) {
+      return { exito: false, error: 'No tenés permiso para modificar esta película.' };
+    }
+    return { exito: true };
   }
 
   async crearPelicula(datos: DatosPelicula, poster: File | null): Promise<{ exito: boolean; error?: string }> {

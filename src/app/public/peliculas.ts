@@ -30,6 +30,7 @@ export class Peliculas {
           generos ( nombre )
         )
       `)
+      .eq('visible', true)
       .order('fecha_estreno', { ascending: false });
 
     if (error) {
@@ -79,6 +80,7 @@ export class Peliculas {
         )
       `)
       .eq('id', id)
+      .eq('visible', true)
       .single();
 
     if (error) {
@@ -109,6 +111,8 @@ export class Peliculas {
     return data;
   }
 }
+
+
 
 
 

@@ -66,6 +66,24 @@ export class PeliculasForm implements OnInit {
     }
   }
 
+  async alternarVisibilidad(p: any) {
+    this.error = null;
+    this.mensaje = null;
+
+    const nueva = !p.visible;
+    const r = await this.servicio.cambiarVisibilidad(p.id, nueva);
+
+    if (r.exito) {
+      p.visible = nueva;
+      this.mensaje = nueva
+        ? `"${p.nombre}" vuelve a aparecer en la cartelera.`
+        : `"${p.nombre}" ya no aparece en la cartelera.`;
+    } else {
+      this.error = r.error || 'No se pudo cambiar la visibilidad.';
+    }
+    this.cdr.detectChanges();
+  }
+
   async crear() {
     this.error = null;
     this.mensaje = null;
@@ -122,5 +140,6 @@ export class PeliculasForm implements OnInit {
     this.cdr.detectChanges();
   }
 }
+
 
 

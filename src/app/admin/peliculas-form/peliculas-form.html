@@ -73,11 +73,17 @@
   </form>
 
   <h2>Películas cargadas</h2>
-  <div class="item" *ngFor="let p of peliculas">
+  <div class="item" *ngFor="let p of peliculas" [class.oculta]="!p.visible">
     <img *ngIf="p.imagen_url" [src]="p.imagen_url" [alt]="p.nombre">
     <div>
       <strong>{{ p.nombre }}</strong>
+      <span class="etiqueta-oculta" *ngIf="!p.visible">Oculta</span>
       <span class="meta">{{ p.duracion_min }} min · {{ p.formato }} · {{ p.idioma }}</span>
     </div>
+    <button type="button" class="visibilidad" (click)="alternarVisibilidad(p)">
+      {{ p.visible ? 'Ocultar' : 'Mostrar' }}
+    </button>
   </div>
 </div>
+
+

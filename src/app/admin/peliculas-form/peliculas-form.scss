@@ -127,3 +127,35 @@ textarea {
     font-size: 0.8rem;
   }
 }
+
+.item.oculta {
+  opacity: 0.55;
+}
+
+.etiqueta-oculta {
+  margin-left: 0.6rem;
+  font-size: 0.7rem;
+  color: #e05a5a;
+  border: 1px solid #e05a5a;
+  border-radius: 10px;
+  padding: 0.1rem 0.5rem;
+}
+
+.visibilidad {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid #444;
+  color: #cfcfcf;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #d4af37;
+    color: #d4af37;
+  }
+}
+
+
+
