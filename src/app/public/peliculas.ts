@@ -109,3 +109,6 @@ export class Peliculas {
     return data;
   }
 }
+
+
+

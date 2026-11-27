@@ -122,3 +122,89 @@ section {
     font-size: 0.9rem;
   }
 }
+
+.formulario-resena {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+
+  .titulo {
+    color: #d4af37;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+
+  .selector-estrellas {
+    display: flex;
+    gap: 0.2rem;
+    margin-bottom: 0.8rem;
+
+    button {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: #444;
+      cursor: pointer;
+      padding: 0;
+
+      &.activa {
+        color: #d4af37;
+      }
+    }
+  }
+
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #f2f2f2;
+    padding: 0.6rem 0.8rem;
+    font-family: inherit;
+    resize: vertical;
+
+    &:focus {
+      outline: none;
+      border-color: #d4af37;
+    }
+  }
+
+  small {
+    display: block;
+    color: #888;
+    text-align: right;
+    margin: 0.2rem 0 0.6rem;
+  }
+
+  .error {
+    color: #e05a5a;
+    font-size: 0.85rem;
+  }
+
+  .ok {
+    color: #6fbf73;
+    font-size: 0.85rem;
+  }
+
+  .guardar {
+    background: #d4af37;
+    border: none;
+    color: #121212;
+    font-weight: 600;
+    padding: 0.55rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.aviso a {
+  color: #d4af37;
+}

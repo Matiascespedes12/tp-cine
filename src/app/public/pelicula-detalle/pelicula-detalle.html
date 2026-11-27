@@ -2,7 +2,7 @@
   <a routerLink="/" class="volver">← Volver a cartelera</a>
 
   <div class="cabecera">
-    <img [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
+    <img *ngIf="pelicula.imagen_url" [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
 
     <div class="info">
       <h1>{{ pelicula.nombre }}</h1>
@@ -12,7 +12,7 @@
       </p>
       <p class="generos-tags">{{ pelicula.generos.join(', ') }}</p>
 
-      <p class="promedio" *ngIf="promedio !== null">⭐ {{ promedio }} / 5 ({{ resenas.length }} reseñas)</p>
+      <p class="promedio" *ngIf="promedio !== null">★ {{ promedio }} / 5 ({{ resenas.length }} reseñas)</p>
       <p class="promedio" *ngIf="promedio === null">Sin reseñas todavía</p>
 
       <p class="sinopsis">{{ pelicula.sinopsis }}</p>
@@ -32,16 +32,46 @@
 
   <section class="resenas">
     <h2>Reseñas</h2>
+
+    <div class="formulario-resena" *ngIf="usuarioId">
+      <p class="titulo">{{ miResena ? 'Tu reseña' : 'Dejá tu reseña' }}</p>
+
+      <div class="selector-estrellas">
+        <button type="button" *ngFor="let n of [1, 2, 3, 4, 5]"
+                [class.activa]="n <= estrellas"
+                (click)="elegirEstrellas(n)"
+                [attr.aria-label]="n + ' estrellas'">★</button>
+      </div>
+
+      <textarea rows="2" maxlength="280" [(ngModel)]="comentario" name="comentario"
+                placeholder="Contanos qué te pareció (máximo 280 caracteres)"></textarea>
+      <small>{{ comentario.length }} / 280</small>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+      <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+      <button type="button" class="guardar" [disabled]="guardando" (click)="guardarResena()">
+        {{ guardando ? 'Guardando...' : (miResena ? 'Actualizar reseña' : 'Publicar reseña') }}
+      </button>
+    </div>
+
+    <p class="aviso" *ngIf="!usuarioId">
+      <a routerLink="/login">Iniciá sesión</a> para dejar tu reseña.
+    </p>
+
     <p *ngIf="resenas.length === 0">Todavía no hay reseñas para esta película.</p>
     <div class="resena" *ngFor="let resena of resenas">
       <div class="resena-header">
-        <strong>{{ resena.usuarios?.nombre || 'Usuario' }}</strong>
-        <span class="estrellas">{{ '⭐'.repeat(resena.calificacion) }}</span>
+        <strong>{{ resena.nombre || 'Usuario' }}</strong>
+        <span class="estrellas">{{ '★'.repeat(resena.calificacion) }}</span>
       </div>
-      <p>{{ resena.comentario }}</p>
+      <p *ngIf="resena.comentario">{{ resena.comentario }}</p>
     </div>
   </section>
 </div>
 
 <p *ngIf="cargando">Cargando...</p>
 <p *ngIf="!cargando && !pelicula">Película no encontrada.</p>
+
+
+
