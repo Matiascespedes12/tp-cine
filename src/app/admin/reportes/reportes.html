@@ -1,1 +1,44 @@
-<p>reportes works!</p>
+<div class="admin">
+  <h1>Reporte de facturación</h1>
+  <p class="ayuda">Entradas vendidas y facturación por día. Las entradas canceladas no se cuentan.</p>
+
+  <label class="periodo">
+    Período
+    <select [(ngModel)]="dias" name="dias" (change)="cargar()">
+      <option [ngValue]="7">Últimos 7 días</option>
+      <option [ngValue]="30">Últimos 30 días</option>
+      <option [ngValue]="90">Últimos 90 días</option>
+    </select>
+  </label>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="vacio" *ngIf="!cargando && !error && filas.length === 0">No hay ventas en este período.</p>
+
+  <table *ngIf="!cargando && filas.length > 0">
+    <thead>
+      <tr>
+        <th>Día</th>
+        <th class="num">Entradas</th>
+        <th class="num">Facturado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let f of filas">
+        <td>{{ f.dia | date:'EEE d MMM y' }}</td>
+        <td class="num">{{ f.entradas }}</td>
+        <td class="num">{{ f.facturado | currency:'ARS':'symbol-narrow':'1.0-0' }}</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td class="num">{{ totalEntradas }}</td>
+        <td class="num">{{ totalFacturado | currency:'ARS':'symbol-narrow':'1.0-0' }}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+
+
