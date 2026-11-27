@@ -25,6 +25,7 @@
 
   <div class="grilla" *ngIf="!cargando">
     <div class="card" *ngFor="let pelicula of peliculasFiltradas" [routerLink]="['/pelicula', pelicula.id]">
+      <span class="puesto" *ngIf="puestoDe(pelicula) as puesto">Más vendida n.º {{ puesto }}</span>
       <img *ngIf="pelicula.imagen_url" [src]="pelicula.imagen_url" [alt]="pelicula.nombre">
       <div class="sin-poster" *ngIf="!pelicula.imagen_url">{{ pelicula.nombre }}</div>
       <div class="info">
@@ -36,7 +37,5 @@
     </div>
   </div>
 </div>
-
-
 
 

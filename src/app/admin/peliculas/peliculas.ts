@@ -7,3 +7,6 @@ import { Component } from '@angular/core';
   templateUrl: './peliculas.html',
 })
 export class Peliculas {}
+
+
+

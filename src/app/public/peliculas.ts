@@ -57,6 +57,18 @@ export class Peliculas {
     return data;
   }
 
+  // Ids de las películas más vendidas, de mayor a menor (las canceladas no cuentan)
+  async obtenerMasVendidas(limite = 3): Promise<string[]> {
+    const { data, error } = await this.supabase.client
+      .rpc('peliculas_mas_vendidas', { p_limite: limite });
+
+    if (error) {
+      console.error('Error al obtener las más vendidas:', error);
+      return [];
+    }
+    return (data as any[]).map(f => f.pelicula_id);
+  }
+
   async obtenerPorId(id: string): Promise<Pelicula | null> {
     const { data, error } = await this.supabase.client
       .from('peliculas')
@@ -97,4 +109,3 @@ export class Peliculas {
     return data;
   }
 }
-
