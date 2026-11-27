@@ -14,6 +14,7 @@
       }
       @if (perfil.rol === 'admin') {
         <a routerLink="/admin/roles">Roles</a>
+        <a routerLink="/admin/cupones">Cupones</a>
       }
       @if (perfil.rol === 'admin' || perfil.rol === 'empleado' || permisos.tiene('validacion')) {
         <a routerLink="/validar">Validar</a>
@@ -54,5 +55,7 @@
     }
   </div>
 </nav>
+
+
 
 

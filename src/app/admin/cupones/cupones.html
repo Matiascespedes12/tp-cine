@@ -1,0 +1,29 @@
+<div class="admin">
+  <h1>Cupones</h1>
+  <p class="ayuda">
+    Cambiá el porcentaje cuando quieras. El cupón de primera compra se aplica solo a quien todavía no compró.
+  </p>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+  <div class="cupon" *ngFor="let c of cupones">
+    <div class="cabecera">
+      <strong>{{ c.codigo }}</strong>
+      <span class="tipo">{{ tipoTexto(c.tipo) }}</span>
+    </div>
+
+    <div class="campos">
+      <label>
+        Porcentaje de descuento
+        <input type="number" min="0" max="100" [(ngModel)]="c.porcentaje">
+      </label>
+      <label class="activo">
+        <input type="checkbox" [(ngModel)]="c.activo"> Activo
+      </label>
+    </div>
+
+    <button type="button" class="guardar" (click)="guardar(c)">Guardar</button>
+  </div>
+</div>

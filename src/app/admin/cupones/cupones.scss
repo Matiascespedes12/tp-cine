@@ -1,0 +1,109 @@
+.admin {
+  background: #121212;
+  min-height: 100vh;
+  padding: 2rem;
+  color: #f2f2f2;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin-bottom: 0.6rem;
+}
+
+.ayuda {
+  color: #b3b3b3;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.error {
+  color: #e05a5a;
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: #6fbf73;
+  font-size: 0.9rem;
+}
+
+.cupon {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  strong {
+    color: #d4af37;
+  }
+
+  .tipo {
+    font-size: 0.75rem;
+    border: 1px solid #4a90d9;
+    color: #4a90d9;
+    border-radius: 10px;
+    padding: 0.1rem 0.6rem;
+  }
+}
+
+.campos {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: #cfcfcf;
+  }
+
+  .activo {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  input[type='number'] {
+    width: 120px;
+    padding: 0.6rem 0.8rem;
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #f2f2f2;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      border-color: #d4af37;
+    }
+  }
+
+  input[type='checkbox'] {
+    accent-color: #d4af37;
+  }
+}
+
+.guardar {
+  background: #d4af37;
+  border: none;
+  color: #121212;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
+
