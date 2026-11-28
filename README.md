@@ -1,6 +1,6 @@
 # TP Cine: sistema de venta de entradas
 
-Aplicación web para un cine: los clientes ven la cartelera, eligen función y butacas en tiempo real, compran y reciben una entrada con QR. El personal valida las entradas y el administrador gestiona películas, funciones y roles.
+Aplicación web para un cine: los clientes ven la cartelera, eligen función y butacas en tiempo real, compran y reciben una entrada con QR. El personal valida las entradas y el administrador gestiona películas, funciones, cupones, roles y reportes.
 
 Trabajo práctico 1 de Programación IV.
 
@@ -26,7 +26,7 @@ src/app/
 ├── shared/        Barra de navegación y pipe propio
 ├── public/        Lo que ve el cliente: cartelera, detalle, butacas, checkout, perfil, propuestas
 ├── auth/          Login y registro (formulario reactivo)
-├── admin/         Panel de administración: películas, funciones, propuestas, roles
+├── admin/         Panel de administración: películas, funciones, propuestas, roles, cupones, reportes
 └── empleado/      Validación de entradas
 ```
 
@@ -41,15 +41,19 @@ src/app/
 - **QR de un solo uso:** `validar_entrada` cambia el estado con bloqueo de fila (`for update`). Un segundo intento devuelve "ya usada".
 - **Butacas en tiempo real:** el mapa se suscribe con Supabase Realtime a los cambios de `entradas` de esa función. Si otra persona compra o alguien cancela, el mapa se actualiza sin recargar.
 - **Restricción de edad:** `edad_permitida` se aplica en la política de `entradas` y también dentro de las funciones de compra. La compra anónima se rechaza en películas con restricción.
-- **Cupón de primera compra:** `descuento_primera_compra` calcula el porcentaje desde la sesión, según el historial de entradas no canceladas.
+- **Cupón de primera compra:** `descuento_primera_compra` lee el porcentaje configurado y lo calcula desde la sesión, según el historial de entradas no canceladas. El admin lo cambia desde una pantalla (con un `check` de 0 a 100 en la base).
+- **Reseñas:** una por usuario y película (índice único), con estrellas y un comentario de hasta 280 caracteres. Cada usuario solo crea y edita la suya; el nombre del autor sale por una función que no abre la tabla de usuarios.
+- **Más vendidas:** `peliculas_mas_vendidas` agrupa las entradas no canceladas por película y excluye las ocultas. El home reordena y marca el puesto.
+- **Ocultar películas:** un campo `visible`. Ocultar no borra nada: se conservan entradas, reseñas y funciones, y se revierte con un click.
 
 **Puntos del último pedido del cliente**
 
 - **Cancelación de una función por el cine:** `cancelar_funcion` corre en **una sola transacción**: acredita a cada usuario el total de sus entradas, deja un movimiento de crédito, crea una notificación, libera las butacas y marca la función como cancelada. Si cualquier paso falla, no se acredita a nadie. El crédito se puede gastar en otra función de la misma película (`comprar_con_credito`, que recalcula los precios en la base).
 - **Notificaciones:** tabla `notificaciones` con Realtime. La campanita de la barra muestra los avisos sin recargar.
 - **Propuestas de películas:** cada cliente puede tener una propuesta pendiente a la vez (índice único parcial). El admin acepta o rechaza; al aceptar se abre el formulario de películas con los datos cargados, y la propuesta se marca aceptada recién cuando la película se crea.
-- **Roles configurables:** modelo usuario ↔ rol ↔ permiso. El admin crea roles con permisos (`peliculas`, `funciones`, `propuestas`, `validacion`) y los asigna por email. `tiene_permiso()` se usa en las políticas RLS y en las funciones; en Angular, un guard por permiso y una barra que muestra solo lo permitido. Gestionar roles es exclusivo del admin, para que nadie pueda darse permisos a sí mismo.
+- **Roles configurables:** modelo usuario ↔ rol ↔ permiso. El admin crea roles con permisos (`peliculas`, `funciones`, `propuestas`, `validacion`, `reportes`) y los asigna por email. `tiene_permiso()` se usa en las políticas RLS y en las funciones; en Angular, un guard por permiso y una barra que muestra solo lo permitido. Gestionar roles es exclusivo del admin, para que nadie pueda darse permisos a sí mismo.
 - **Lista de espera:** cuando una función se agota, los usuarios registrados se anotan y ven su posición. Si alguien cancela su compra (hasta 2 horas antes, con crédito), `cancelar_entrada` ofrece la butaca al primero de la lista con **15 minutos** para comprarla. La reserva se impone con un trigger en `entradas`, también para la compra con crédito. Al vencer el plazo, pasa al siguiente. El admin ve cuánta gente espera por función.
+- **Reporte de facturación:** `reporte_facturacion` agrupa por día (hora de Argentina) las entradas vendidas y lo facturado, sin contar las canceladas. Exige el permiso `reportes`, así que se puede crear un rol que acceda solo a esa sección.
 
 **Seguridad (Row Level Security)**
 
@@ -62,7 +66,7 @@ src/app/
 **Angular**
 
 - Componentes standalone, signals y la sintaxis `@if` / `@for`.
-- Sin Zone.js: después de operaciones `async` se llama a `ChangeDetectorRef.detectChanges()`; la sesión y las notificaciones son signals.
+- Sin Zone.js: después de operaciones `async` se llama a `ChangeDetectorRef.detectChanges()`; la sesión, los permisos y las notificaciones son signals.
 - **Pipes:** `date` y `currency` (idioma `es-AR` registrado) y un pipe propio, `restriccionEdad`.
 - **Formularios reactivos:** registro y propuestas, con `required`, `email`, `minLength`, `maxLength`, `min`/`max` y un validador propio (`fechaNoFutura`).
 - **Guards:** `canActivate` (administrador, personal y permisos) y `canDeactivate` (avisa si salís del mapa con butacas elegidas).
@@ -73,38 +77,41 @@ src/app/
 
 ## Qué está implementado
 
-- Cartelera con buscador por título y filtro por género (varios por película).
-- Detalle con funciones, reseñas y promedio.
+- Cartelera con buscador por título, filtro por género (varios por película) y las 3 películas más vendidas primero.
+- Detalle con funciones, reseñas con promedio y formulario para reseñar.
 - Mapa de butacas en tiempo real, con accesibles (fila J) y VIP (filas R, S y T) diferenciadas, y aviso de VIP antes de pagar.
-- Registro e inicio de sesión; barra con sesión y notificaciones.
+- Registro e inicio de sesión; barra con sesión, permisos y notificaciones.
 - Compra con o sin sesión, cupón de primera compra, uso del crédito, QR por entrada con el código escrito para ingreso manual.
 - Mi perfil: crédito, entradas con cancelación hasta 2 horas antes, y listas de espera con posición.
-- Panel de administración: películas con póster, funciones con sala automática y cancelación atómica, propuestas, roles y lista de espera por función.
+- Panel de administración: películas con póster (crear, ocultar y mostrar), funciones con sala automática y cancelación atómica, propuestas, roles, cupones, reporte de facturación y lista de espera por función.
 - Validación de entradas por personal.
 - PWA instalable.
 
 ## Pendiente
 
-Funcionalidades del pedido original que no están:
+Funcionalidades del pedido que no están:
 
 - Candy bar, combos y programa de puntos.
 - PDF de la entrada y escaneo del QR con cámara (hoy el código se escribe a mano).
 - Preventa, "Próximamente", alertas y "Mis películas".
-- Reseñas desde la app (hoy solo se muestran).
-- Las 3 películas más vendidas en el home.
-- Reportes con gráficos y exportación, y log de actividad.
+- Reportes con gráficos y exportación a PDF o Excel, y log de actividad.
 - Administración de salas y butacas, y funciones repetidas por día de la semana.
+- Editar los datos de una película (hoy se crea y se oculta).
+- Cupón por edad (mayores de 50).
+- La entrada no aclara "debe ir acompañado de un adulto" (solo lo dice el detalle de la película).
 - Notificaciones push reales (hoy los avisos van por la campanita en tiempo real).
 
 ## Limitaciones conocidas
 
 - **Los 15 minutos de la lista de espera no corren con un proceso en segundo plano:** se procesan cuando alguien abre el mapa o "Mi perfil". Con `pg_cron` se resolvería.
-- Los permisos de roles son un conjunto fijo de cuatro, que coinciden con las secciones del admin que existen (no hay pantalla de reportes).
+- Los permisos de roles son un conjunto fijo de cinco, que coinciden con las secciones del admin que existen.
 - Crear un rol son dos inserts desde el cliente; lo correcto sería una función transaccional, como en la cancelación de funciones.
 - En la compra común, el precio con descuento lo calcula el front. En la compra con crédito, lo calcula la base.
 - La lectura de `entradas` es pública para poder mostrar butacas ocupadas; a futuro conviene reemplazarla por una vista sin los códigos QR.
 - La butaca se bloquea al confirmar la compra, no al seleccionarla.
 - `canDeactivate` solo intercepta la navegación dentro de la app (no cubre cerrar la pestaña).
+- Ocultar una película la saca de la cartelera, pero no cancela sus funciones.
+- El reporte de facturación cuenta el precio de las entradas, incluso las pagadas con crédito, y no las canceladas.
 - El precio base ($2000) y el recargo VIP (×1,5) están en el código; no hay pasarela de pago.
 - El admin no ve el nombre de quien envía una propuesta.
 
