@@ -54,7 +54,7 @@ src/app/
 
 **Puntos del último pedido del cliente**
 
-- **Cancelación de una función por el cine:** `cancelar_funcion` corre en **una sola transacción**: acredita a cada usuario el total de sus entradas, deja un movimiento de crédito, crea una notificación, libera las butacas y marca la función como cancelada. Si cualquier paso falla, no se acredita a nadie. El crédito se puede gastar en otra función de la misma película (`comprar_con_credito` y `comprar_con_productos`, que recalculan los precios en la base).
+- **Cancelación de una función por el cine:** `cancelar_funcion` corre en **una sola transacción**: acredita a cada usuario el total de sus entradas **y del candy que todavía no se retiró**, deja un movimiento de crédito, crea una notificación, libera las butacas y marca la función como cancelada. Si cualquier paso falla, no se acredita a nadie. El crédito se puede gastar en otra función de la misma película (`comprar_con_credito` y `comprar_con_productos`, que recalculan los precios en la base).
 - **Notificaciones:** tabla `notificaciones` con Realtime. La campanita de la barra muestra los avisos sin recargar.
 - **Propuestas de películas:** cada cliente puede tener una propuesta pendiente a la vez (índice único parcial). El admin acepta o rechaza; al aceptar se abre el formulario de películas con los datos cargados, y la propuesta se marca aceptada recién cuando la película se crea.
 - **Roles configurables:** modelo usuario ↔ rol ↔ permiso. El admin crea roles con permisos (`peliculas`, `funciones`, `propuestas`, `validacion`, `reportes`, `candy`) y los asigna por email. `tiene_permiso()` se usa en las políticas RLS y en las funciones; en Angular, un guard por permiso y una barra que muestra solo lo permitido. Gestionar roles es exclusivo del admin, para que nadie pueda darse permisos a sí mismo.
@@ -115,7 +115,7 @@ Funcionalidades del pedido que no están:
 - Crear un rol son dos inserts desde el cliente; lo correcto sería una función transaccional, como en la cancelación de funciones.
 - En la compra común, el precio con descuento lo calcula el front. En la compra con crédito o con candy, lo calcula la base.
 - **Candy bar:** sin combos ni imágenes de producto; el descuento de primera compra se aplica a las entradas y no al candy; todo el candy de una compra queda en una sola entrada.
-- **Cuando se cancela una entrada o una función, el crédito devuelve el precio de las entradas pero no el del candy.**
+- **Al cancelar una entrada o una función, el crédito incluye el candy que todavía no se retiró; el candy ya entregado no se devuelve.**
 - La lectura de `entradas` es pública para poder mostrar butacas ocupadas; a futuro conviene reemplazarla por una vista sin los códigos QR.
 - La butaca se bloquea al confirmar la compra, no al seleccionarla.
 - `canDeactivate` solo intercepta la navegación dentro de la app (no cubre cerrar la pestaña).
