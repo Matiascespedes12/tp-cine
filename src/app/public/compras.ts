@@ -21,6 +21,31 @@ export interface ResultadoCompraCredito {
   aPagar?: number;
 }
 
+export interface ProductoCandy {
+  id: string;
+  nombre: string;
+  precio: number;
+  categoria: string;
+}
+
+export interface LineaCandy {
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+}
+
+export interface ResultadoCompraCandy {
+  exito: boolean;
+  error?: string;
+  entradas?: EntradaComprada[];
+  candy?: LineaCandy[];
+  qrCandy?: string | null;
+  totalCandy?: number;
+  total?: number;
+  creditoUsado?: number;
+  aPagar?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -54,6 +79,26 @@ export class Compras {
       return 0;
     }
     return Number(data?.credito) || 0;
+  }
+
+  // Productos activos del candy bar, con su categoría (lectura pública)
+  async obtenerCandy(): Promise<ProductoCandy[]> {
+    const { data, error } = await this.supabase.client
+      .from('productos')
+      .select('id, nombre, precio, categorias_productos(nombre)')
+      .order('nombre');
+
+    if (error) {
+      console.error('Error al obtener el candy bar:', error);
+      return [];
+    }
+
+    return (data as any[]).map(p => ({
+      id: p.id,
+      nombre: p.nombre,
+      precio: Number(p.precio),
+      categoria: p.categorias_productos?.nombre ?? 'Otros'
+    }));
   }
 
   async confirmarCompra(
@@ -126,4 +171,43 @@ export class Compras {
       aPagar: Number(data.a_pagar)
     };
   }
+
+  // Compra con candy bar: la base calcula todos los precios y hace todo en una transacción
+  async comprarConProductos(
+    funcionId: string,
+    butacaIds: string[],
+    productos: { producto_id: string; cantidad: number }[],
+    usarCredito: boolean
+  ): Promise<ResultadoCompraCandy> {
+    const { data, error } = await this.supabase.client.rpc('comprar_con_productos', {
+      p_funcion_id: funcionId,
+      p_butacas: butacaIds,
+      p_productos: productos,
+      p_usar_credito: usarCredito
+    });
+
+    if (error) {
+      if (error.code === '23505') {
+        return { exito: false, error: 'Alguna de las butacas ya fue comprada por otra persona. Volvé al mapa y elegí otras.' };
+      }
+      console.error('Error al comprar con productos:', error);
+      return { exito: false, error: error.message };
+    }
+
+    return {
+      exito: true,
+      entradas: data.entradas,
+      candy: data.candy,
+      qrCandy: data.qr_candy,
+      totalCandy: Number(data.total_candy),
+      total: Number(data.total),
+      creditoUsado: Number(data.credito_usado),
+      aPagar: Number(data.a_pagar)
+    };
+  }
 }
+
+
+
+
+

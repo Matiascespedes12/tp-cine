@@ -18,12 +18,31 @@
     Tu selección incluye butacas VIP, con un precio mayor al de una butaca común.
   </p>
 
-  <div class="desglose" *ngIf="porcentajeDescuento > 0">
-    <div><span>Subtotal</span><span>{{ subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</span></div>
-    <div class="descuento">
+  <div class="candy" *ngIf="gruposCandy.length > 0">
+    <h2>Sumá algo del candy bar</h2>
+    <p class="ayuda">Se retira con el QR de tu primera entrada.</p>
+
+    <div class="grupo" *ngFor="let g of gruposCandy">
+      <h3>{{ g.categoria }}</h3>
+      <div class="producto" *ngFor="let p of g.productos">
+        <span class="nombre">{{ p.nombre }}</span>
+        <span class="precio">{{ p.precio | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+        <div class="cantidad">
+          <button type="button" (click)="restar(p)" [disabled]="cantidadDe(p) === 0" aria-label="Quitar uno">−</button>
+          <span>{{ cantidadDe(p) }}</span>
+          <button type="button" (click)="sumar(p)" aria-label="Agregar uno">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="desglose" *ngIf="porcentajeDescuento > 0 || hayCandy">
+    <div><span>Entradas</span><span>{{ subtotal | currency:'ARS':'symbol-narrow':'1.0-0' }}</span></div>
+    <div class="descuento" *ngIf="porcentajeDescuento > 0">
       <span>Descuento primera compra ({{ porcentajeDescuento }}%)</span>
       <span>-{{ descuento | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
     </div>
+    <div *ngIf="hayCandy"><span>Candy bar</span><span>{{ totalCandy | currency:'ARS':'symbol-narrow':'1.0-0' }}</span></div>
   </div>
 
   <label class="credito" *ngIf="credito > 0">
@@ -70,6 +89,14 @@
     </div>
   </div>
 
+  <div class="candy-final" *ngIf="candyFinal.length > 0">
+    <h3>Candy bar (se retira con el QR marcado "con candy")</h3>
+    <div class="linea" *ngFor="let c of candyFinal">
+      <span>{{ c.cantidad }} × {{ c.nombre }}</span>
+      <span>{{ c.cantidad * c.precio_unitario | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+  </div>
+
   <div class="entradas">
     <div class="entrada" *ngFor="let e of entradasConQr">
       <strong>{{ e.etiqueta }}</strong>
@@ -80,3 +107,7 @@
 
   <a routerLink="/" class="confirmar">Volver a la cartelera</a>
 </div>
+
+
+
+

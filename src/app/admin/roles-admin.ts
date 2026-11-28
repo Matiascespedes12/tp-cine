@@ -7,7 +7,8 @@ export const PERMISOS = [
   { clave: 'funciones', etiqueta: 'Funciones' },
   { clave: 'propuestas', etiqueta: 'Propuestas de películas' },
   { clave: 'validacion', etiqueta: 'Validación de entradas' },
-  { clave: 'reportes', etiqueta: 'Reportes' }
+  { clave: 'reportes', etiqueta: 'Reportes' },
+  { clave: 'candy', etiqueta: 'Candy bar' }
 ];
 
 export interface Rol {
@@ -111,3 +112,8 @@ export class RolesAdmin {
     return error ? { exito: false, error: error.message } : { exito: true };
   }
 }
+
+
+
+
+

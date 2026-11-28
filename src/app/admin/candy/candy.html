@@ -1,0 +1,42 @@
+<div class="admin">
+  <h1>Candy bar</h1>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <p class="ok" *ngIf="mensaje">{{ mensaje }}</p>
+
+  <h2>Nueva categoría</h2>
+  <form class="linea" (ngSubmit)="crearCategoria()">
+    <input type="text" name="nuevaCategoria" [(ngModel)]="nuevaCategoria" placeholder="Ej: Pochoclos">
+    <button type="submit" class="guardar">Crear categoría</button>
+  </form>
+
+  <h2>Nuevo producto</h2>
+  <form class="producto-nuevo" (ngSubmit)="crearProducto()">
+    <input type="text" name="nuevoNombre" [(ngModel)]="nuevoNombre" placeholder="Nombre (ej: Pochoclo grande)">
+    <input type="number" name="nuevoPrecio" [(ngModel)]="nuevoPrecio" min="0" placeholder="Precio">
+    <select name="nuevaCategoriaId" [(ngModel)]="nuevaCategoriaId">
+      <option value="" disabled>Categoría</option>
+      <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
+    </select>
+    <button type="submit" class="guardar">Crear producto</button>
+  </form>
+
+  <h2>Productos</h2>
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacio" *ngIf="!cargando && categorias.length === 0">Todavía no hay categorías.</p>
+
+  <div class="categoria" *ngFor="let c of categorias">
+    <h3>{{ c.nombre }}</h3>
+    <p class="vacio" *ngIf="productosDe(c.id).length === 0">Sin productos.</p>
+
+    <div class="producto" *ngFor="let p of productosDe(c.id)" [class.inactivo]="!p.activo">
+      <span class="nombre">{{ p.nombre }}</span>
+      <input type="number" min="0" [(ngModel)]="p.precio" class="precio">
+      <label class="activo"><input type="checkbox" [(ngModel)]="p.activo"> Activo</label>
+      <button type="button" class="guardar" (click)="guardar(p)">Guardar</button>
+    </div>
+  </div>
+</div>
+
+
+

@@ -1,17 +1,54 @@
 <div class="validacion">
-  <h1>Validar entrada</h1>
+  <h1>Validar entrada y entregar candy</h1>
   <p class="ayuda">Escribí o pegá el código que figura debajo del QR.</p>
 
-  <form (ngSubmit)="validar()">
-    <input type="text" name="codigo" [(ngModel)]="codigo" placeholder="QR-xxxxxxxx-xxxx-..." autocomplete="off">
-    <button type="submit" [disabled]="validando">
-      {{ validando ? 'Validando...' : 'Validar' }}
-    </button>
-  </form>
+  <input type="text" name="codigo" [(ngModel)]="codigo" (ngModelChange)="alCambiarCodigo()"
+         placeholder="QR-xxxxxxxx-xxxx-..." autocomplete="off">
 
-  <p class="resultado" *ngIf="resultado"
-     [class.ok]="resultado === 'ok'"
-     [class.mal]="resultado !== 'ok'">
-    {{ mensajes[resultado] }}
-  </p>
+  <section>
+    <h2>Entrada</h2>
+    <button type="button" class="accion" [disabled]="validando" (click)="validar()">
+      {{ validando ? 'Validando...' : 'Validar entrada' }}
+    </button>
+
+    <p class="resultado" *ngIf="resultado"
+       [class.ok]="resultado === 'ok'"
+       [class.mal]="resultado !== 'ok'">
+      {{ mensajes[resultado] }}
+    </p>
+  </section>
+
+  <section>
+    <h2>Candy bar</h2>
+    <button type="button" class="accion" [disabled]="consultando" (click)="consultarCandy()">
+      {{ consultando ? 'Consultando...' : 'Ver candy de este código' }}
+    </button>
+
+    <div *ngIf="consulta">
+      <p class="resultado"
+         [class.ok]="consulta.estado === 'pendiente'"
+         [class.mal]="consulta.estado !== 'pendiente'">
+        {{ mensajesCandy[consulta.estado] }}
+      </p>
+
+      <ul class="productos" *ngIf="consulta.productos.length > 0">
+        <li *ngFor="let p of consulta.productos">{{ p.cantidad }} × {{ p.nombre }}</li>
+      </ul>
+
+      <button type="button" class="accion entregar" *ngIf="consulta.estado === 'pendiente'"
+              [disabled]="entregando" (click)="entregarCandy()">
+        {{ entregando ? 'Entregando...' : 'Confirmar entrega' }}
+      </button>
+    </div>
+
+    <p class="resultado" *ngIf="entrega"
+       [class.ok]="entrega === 'ok'"
+       [class.mal]="entrega !== 'ok'">
+      {{ mensajesEntrega[entrega] }}
+    </p>
+  </section>
 </div>
+
+
+
+

@@ -10,9 +10,10 @@ import { Registro } from './auth/registro/registro';
 import { Funciones } from './admin/funciones/funciones';
 import { PeliculasForm } from './admin/peliculas-form/peliculas-form';
 import { Propuestas } from './admin/propuestas/propuestas';
+import { Reportes } from './admin/reportes/reportes';
 import { Roles } from './admin/roles/roles';
 import { Cupones } from './admin/cupones/cupones';
-import { Reportes } from './admin/reportes/reportes';
+import { Candy } from './admin/candy/candy';
 import { Validacion } from './empleado/validacion/validacion';
 import { adminGuard } from './core/admin.guard';
 import { permisoGuard } from './core/permiso.guard';
@@ -32,6 +33,7 @@ export const routes: Routes = [
   { path: 'admin/peliculas', component: PeliculasForm, canActivate: [permisoGuard('peliculas')] },
   { path: 'admin/propuestas', component: Propuestas, canActivate: [permisoGuard('propuestas')] },
   { path: 'admin/reportes', component: Reportes, canActivate: [permisoGuard('reportes')] },
+  { path: 'admin/candy', component: Candy, canActivate: [permisoGuard('candy')] },
   { path: 'admin/roles', component: Roles, canActivate: [adminGuard] },
   { path: 'admin/cupones', component: Cupones, canActivate: [adminGuard] },
   { path: 'validar', component: Validacion, canActivate: [personalGuard] },

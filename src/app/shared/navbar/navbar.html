@@ -15,6 +15,9 @@
       @if (permisos.tiene('reportes')) {
         <a routerLink="/admin/reportes">Reportes</a>
       }
+      @if (permisos.tiene('candy')) {
+        <a routerLink="/admin/candy">Candy</a>
+      }
       @if (perfil.rol === 'admin') {
         <a routerLink="/admin/roles">Roles</a>
         <a routerLink="/admin/cupones">Cupones</a>
@@ -58,9 +61,6 @@
     }
   </div>
 </nav>
-
-
-
 
 
 
